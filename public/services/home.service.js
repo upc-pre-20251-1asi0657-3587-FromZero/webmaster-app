@@ -25,13 +25,21 @@ export class HomeService {
         return http.get('/developers');
     }
 
-    getDevInfoByID(id) {
+    /*getDevInfoByID(id) {
         return http.get(`/developers/${id}`);
+    }*/
+
+    getDevInfoByUserId(userId) {
+       return http.get(`/developers/user/${userId}`);
     }
 
     updateDevInfo(id, data) {
         return http.put(`/developers/${id}`, data);
     }
+
+   /* updateDevInfo(id, data) {
+        return http.put(`/developers/${id}`, data);
+    }*/
 
     updateEnterpriseInfo(id, data) {
         return http.put(`/enterprises/${id}`, data);

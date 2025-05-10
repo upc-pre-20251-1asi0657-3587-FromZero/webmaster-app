@@ -16,15 +16,14 @@ export default {
     };
   },
   async created() {
-    // read the enterpriseId set in company-data
-    const entId = Number(localStorage.getItem('enterpriseId'));
-    if (entId) {
+    const devId = Number(localStorage.getItem('developer id'));
+    if (devId) {
       try {
-        const response = await this.projectService.getProjectByEnterprise(entId);
-        this.projectsData = response;
+        const proyectos = await this.projectService.getProjectByDeveloper(devId);
+        this.projectsData = proyectos;
         this.buildProjects();
       } catch (err) {
-        console.error('Failed loading projects for enterprise', err);
+        console.error('Failed loading projects for developer', err);
       }
     } else {
       console.warn('No enterpriseId found in localStorage');
