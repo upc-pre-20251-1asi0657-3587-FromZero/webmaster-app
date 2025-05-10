@@ -30,8 +30,8 @@ export default {
         <toolbar-enterprise/>
       </div>
       <div class="p-container-fluid px-0">
-          <div class="mt-3 w-full mt-3 mb-3">
-            <router-view></router-view>
+        <div class="mt-3 w-full mt-3 mb-3">
+          <router-view></router-view>
         </div>
       </div>
     </div>
