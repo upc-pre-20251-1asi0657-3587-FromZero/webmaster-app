@@ -1,57 +1,54 @@
 <script>
 import CompanyMainPageComponent from "../components/company-main-page.component.vue";
-import {CompanyEntity} from "../../../shared/models/company.model.js";
-import {AuthService} from "../../../../public/services/auth.service.js";
-import {HomeService} from "../../../../public/services/home.service.js";
-
+import { CompanyEntity } from "../../../shared/models/company.model.js";
+import { HomeService } from "../../../../public/services/home.service.js";
 
 export default {
   name: "company-data",
-  components:{CompanyMainPageComponent},
-  data(){
-    return{
+  components: { CompanyMainPageComponent },
+  data() {
+    return {
       homeService: new HomeService(),
-      myCom:null,
-      enterprise:null,
-      enterpriseId:null
-    }
+      myCom: null,
+      enterprise: null
+    };
   },
-  created(){
-    let id = localStorage.getItem('user id');
-    this.homeService.getEnterpriseInfoByID(id).then((response) => {
+  provide() {
+    return {
+      // inyecta el enterpriseId para los hijos (projects-data)
+    enterpriseId: this.enterprise?.id
+    };
+  },
+  async created() {
+    try {
+      const userId = localStorage.getItem("user id");
+      // llamamos al endpoint /enterprises/user/{userId}
+      const response = await this.homeService.getEnterpriseByUserId(userId);
       this.enterprise = response.data;
-      this.enterpriseId = response.data.enterprise_id;
-      console.log(this.enterprise);
-      this.createUser();
-      localStorage.setItem("enterprise id", this.enterpriseId);
-      console.log(this.myCom);
-    });
-  },
-  methods:{
-    createUser(){
-      return this.myCom = new CompanyEntity(
-          this.enterprise.user_id,
-          this.enterprise.enterprise_name,
-          this.enterprise.profile_img_url,
+
+      // construimos la entidad con los nombres de campo que devuelve la API
+      this.myCom = new CompanyEntity(
+          this.enterprise.id,
+          this.enterprise.enterpriseName,
+          this.enterprise.profileImgUrl,
           this.enterprise.description,
           this.enterprise.country,
           this.enterprise.ruc,
           this.enterprise.phone,
           this.enterprise.website,
           this.enterprise.sector,
-          this.enterprise.user
-      )
+          [] // no viene el objeto User completo, dejamos array vacío
+      );
+    } catch (err) {
+      console.error('Error al cargar los datos de la empresa', err);
     }
   }
-}
+};
 </script>
 
 <template>
-  <div v-if="enterprise">
-    <CompanyMainPageComponent :company="myCom"></CompanyMainPageComponent>
+  <div v-if="myCom">
+    <CompanyMainPageComponent :company="myCom"/>
   </div>
+  <div v-else class="p-m-3">Cargando datos de la empresa…</div>
 </template>
-
-<style scoped>
-
-</style>

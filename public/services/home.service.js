@@ -1,54 +1,47 @@
 import axios from 'axios';
-import {environment} from "@/environment/environment.js";
+import { environment } from "@/environment/environment.js";
 
-// Obtén el token del local storage
 const token = localStorage.getItem('token');
 
-const http= axios.create({
-    baseURL:environment.baseUrl,
+const http = axios.create({
+    baseURL: environment.baseUrl,
     headers: {
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
     }
-})
+});
 
-export class HomeService{
-    // getUsers(){
-    //     return http.get('/users')
-    // }
-    //
-    getEnterpriseInfoByID(id){
-        return http.get(`Profile/Enterprises/${id}`)
-    }
-    //
-    //
-   getDeveloperList() {
-       return http.get('/Profile/Developers');
-   }
+export class HomeService {
 
-    getDevInfoByID(id){
-        return http.get(`Profile/Developers/${id}`)
-    }
-    getApplicantInfoById(developer_id){
-        return http.get(`Profile/Profile/Developers/${developer_id}`)
-    }
-    getEnterpriseInfoByEnterpriseId(enterprise_id){
-        return http.get(`Profile/Profile/Enterprises/${enterprise_id}`)
+    getEnterpriseByUserId(userId) {
+        return http.get(`/enterprises/user/${userId}`);
     }
 
-    updateDevInfo(id, data){
-        return http.put(`Profile/Developers/${id}`, data)
+    getEnterpriseInfoByID(id) {
+        return http.get(`/enterprises/${id}`);
     }
 
-    updateEnterpriseInfo(id, data){
-        return http.put(`Profile/Enterprises/${id}`, data)
+    getDeveloperList() {
+        return http.get('/developers');
     }
 
-    updateDevProfileImg(id, data){
-        return http.put(`Profile/Developers/${id}/img`, data)
+    getDevInfoByID(id) {
+        return http.get(`/developers/${id}`);
     }
 
-    updateEnterpriseProfileImg(id, data){
-        return http.put(`Profile/Enterprises/${id}/img`, data)
+    updateDevInfo(id, data) {
+        return http.put(`/developers/${id}`, data);
     }
 
+    updateEnterpriseInfo(id, data) {
+        return http.put(`/enterprises/${id}`, data);
+    }
+
+    updateDevProfileImg(id, data) {
+        return http.put(`/developers/${id}/img`, data);
+    }
+
+    updateEnterpriseProfileImg(id, data) {
+        return http.put(`/enterprises/${id}/img`, data);
+    }
 }

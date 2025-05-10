@@ -1,6 +1,8 @@
 import { createApp } from 'vue'
 import './style.css'
 import App from './App.vue'
+import MultiSelect from 'primevue/multiselect'
+
 //prime
 import PrimeVue from "primevue/config";
 // Add i18n support
@@ -46,10 +48,11 @@ createApp(App)
     .use(ToastService)
     .use(router)
     .use(i18n)
-    .component('pv-password', Password)
-    .component('pv-dropDown',Dropdown)
+    .component('pv-multi-select', MultiSelect)
+    .component('pv-drop-down', Dropdown)
     .component('pv-modal',Dialog)
-    .component('pv-inputText',InputText)
+    .component('pv-password', Password)
+    .component('pv-inputText', InputText)
     .component('pv-button', Button)
     .component('pv-toolbar', Toolbar)
     .component('pv-card', Card)
