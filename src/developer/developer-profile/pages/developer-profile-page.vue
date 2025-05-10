@@ -18,7 +18,7 @@ export default {
   },
   created(){
     let id = this.$route.params.id;
-    this.homeService.getDevInfoByID(id).then((response)=> {
+    this.homeService.getDevProfileByUserId(id).then((response)=> {
       this.developerProfile = response.data;
     })
 

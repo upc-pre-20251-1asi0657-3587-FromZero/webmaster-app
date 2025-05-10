@@ -16,11 +16,10 @@ export default {
     };
   },
   async created() {
-    const devId = Number(localStorage.getItem('developer id'));
-    if (devId) {
+    const userId = Number(localStorage.getItem("userid"));
+    if (userId) {
       try {
-        const proyectos = await this.projectService.getProjectByDeveloper(devId);
-        this.projectsData = proyectos;
+       this.projectsData = await this.projectService.getProjectByDeveloper(userId);
         this.buildProjects();
       } catch (err) {
         console.error('Failed loading projects for developer', err);
@@ -54,7 +53,7 @@ export default {
 </script>
 
 <template>
-  <div v-if="myProjects.length">
+  <div v-if="myProjects">
     <ProjectsPanelComponent :projects="myProjects" />
   </div>
 </template>

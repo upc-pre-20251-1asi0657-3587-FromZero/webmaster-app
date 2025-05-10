@@ -13,10 +13,6 @@ const http = axios.create({
 
 export class HomeService {
 
-    getEnterpriseByUserId(userId) {
-        return http.get(`/enterprises/user/${userId}`);
-    }
-
     getEnterpriseInfoByID(id) {
         return http.get(`/enterprises/${id}`);
     }
@@ -25,21 +21,17 @@ export class HomeService {
         return http.get('/developers');
     }
 
-    /*getDevInfoByID(id) {
-        return http.get(`/developers/${id}`);
-    }*/
+    getDevProfileByUserId(userId) {
+        return http.get(`/developers/user/${userId}`);
+    }
 
-    getDevInfoByUserId(userId) {
-       return http.get(`/developers/user/${userId}`);
+    getDevInfoByID(id) {
+        return http.get(`/developers/${id}`);
     }
 
     updateDevInfo(id, data) {
         return http.put(`/developers/${id}`, data);
     }
-
-   /* updateDevInfo(id, data) {
-        return http.put(`/developers/${id}`, data);
-    }*/
 
     updateEnterpriseInfo(id, data) {
         return http.put(`/enterprises/${id}`, data);

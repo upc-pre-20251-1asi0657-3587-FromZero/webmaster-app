@@ -34,7 +34,7 @@ export default {
   <template #content>
     <div class=" flex flex-column gap-3 align-items-center">
       <div class="flex flex-column gap-4 ">
-        <pv-inputText aria-label="User input field" type="text" v-model="Mail" placeholder="Usuario" class="border-round-3xl" @keyup.enter="login"/>
+        <pv-inputText aria-label="User input field" type="text" v-model="Mail" placeholder="Correo" class="border-round-3xl" @keyup.enter="login"/>
         <pv-password aria-label="Password input field" v-model="Password" :feedback="false" placeholder="Contraseña" class="border-round-3xl" @keyup.enter="login"/>
       </div>
 
