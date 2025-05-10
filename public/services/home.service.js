@@ -1,53 +1,43 @@
 import axios from 'axios';
+import { environment } from "@/environment/environment.js";
 
-// Obtén el token del local storage
 const token = localStorage.getItem('token');
 
-const http= axios.create({
-    baseURL:'https://webmasterapi.azurewebsites.net/api/v1',
+const http = axios.create({
+    baseURL: environment.baseUrl,
     headers: {
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
     }
-})
+});
 
-export class HomeService{
-    // getUsers(){
-    //     return http.get('/users')
-    // }
-    //
-    getEnterpriseInfoByID(id){
-        return http.get(`Profile/Enterprises/${id}`)
-    }
-    //
-    //
-   getDeveloperList() {
-       return http.get('/Profile/Developers');
-   }
+export class HomeService {
 
-    getDevInfoByID(id){
-        return http.get(`Profile/Developers/${id}`)
-    }
-    getApplicantInfoById(developer_id){
-        return http.get(`Profile/Profile/Developers/${developer_id}`)
-    }
-    getEnterpriseInfoByEnterpriseId(enterprise_id){
-        return http.get(`Profile/Profile/Enterprises/${enterprise_id}`)
+    getEnterpriseInfoByID(id) {
+        return http.get(`/enterprises/${id}`);
     }
 
-    updateDevInfo(id, data){
-        return http.put(`Profile/Developers/${id}`, data)
+    getDeveloperList() {
+        return http.get('/developers');
     }
 
-    updateEnterpriseInfo(id, data){
-        return http.put(`Profile/Enterprises/${id}`, data)
+    getDevInfoByID(id) {
+        return http.get(`/developers/${id}`);
     }
 
-    updateDevProfileImg(id, data){
-        return http.put(`Profile/Developers/${id}/img`, data)
+    updateDevInfo(id, data) {
+        return http.put(`/developers/${id}`, data);
     }
 
-    updateEnterpriseProfileImg(id, data){
-        return http.put(`Profile/Enterprises/${id}/img`, data)
+    updateEnterpriseInfo(id, data) {
+        return http.put(`/enterprises/${id}`, data);
     }
 
+    updateDevProfileImg(id, data) {
+        return http.put(`/developers/${id}/img`, data);
+    }
+
+    updateEnterpriseProfileImg(id, data) {
+        return http.put(`/enterprises/${id}/img`, data);
+    }
 }

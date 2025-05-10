@@ -1,12 +1,14 @@
 ﻿import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
+import {environment} from "@/environment/environment.js";
 
 const token = localStorage.getItem('token');
 
 const http = axios.create({
-    baseURL: 'https://webmasterapi.azurewebsites.net/api/v1',
+    baseURL: environment.baseUrl,
     headers: {
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
     }
 });
 export default {

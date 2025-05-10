@@ -4,7 +4,7 @@ export default {
   methods: {
     goToDeliverableList() {
       const { projectId} = this.$route.params;
-      this.$router.push(`/Projects/${projectId}/Deliverables`);
+      this.$router.push(`/projects/developers/${projectId}/Deliverables`);
     }
   }
 }

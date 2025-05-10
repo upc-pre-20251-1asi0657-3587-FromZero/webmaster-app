@@ -22,36 +22,36 @@ methods:{
   async registerAccount() {
     if (this.selectedRole === 'empresa') {
       const enterpriseData = {
-        mail: this.mail,
+        username: this.mail,
         password: this.password,
-        user_type: "E",
-        enterprise_name: this.companyName
+        enterpriseName: this.companyName
       };
-      this.authService.registerEnterprise(enterpriseData).then((response) => {
-        console.log(response)
-        if (response.status === "200") {
-          console.log("Desarrollador creado");
-          this.$router.push('/login');
-        }
-      });
+      try {
+        const response = await this.authService.registerEnterprise(enterpriseData);
+        console.log("Empresa creada:", response);
+        this.$router.push('/login');
+      } catch (error) {
+        console.error("Error al registrar empresa", error);
+      }
     }
+
     if (this.selectedRole === 'desarrollador') {
       const developerData = {
-        Mail: this.mail,
-        Password: this.password,
+        username: this.mail,
+        password: this.password,
         firstName: this.firstName,
-        user_type: "D",
         lastName: this.lastName
       };
-      this.authService.registerDeveloper(developerData).then((response) => {
-        console.log(response)
-        if (response.status === "200") {
-          console.log("Desarrollador creado");
-          this.$router.push('/login')
-        }
-      });
+      try {
+        const response = await this.authService.registerDeveloper(developerData);
+        console.log("Desarrollador creado:", response);
+        this.$router.push('/login');
+      } catch (error) {
+        console.error("Error al registrar desarrollador", error);
+      }
     }
   }
+
 },
 };
 </script>
@@ -84,7 +84,7 @@ methods:{
               <pv-inputText v-if="selectedRole === 'empresa'" aria-label="Company name input field" type="text" v-model="companyName" placeholder="Nombre de la empresa" class="border-round-3xl"/>
 
               <pv-inputText aria-label="Password input field" type="password" v-model="password" placeholder="Contraseña" class="border-round-3xl"/>
-              <pv-dropDown aria-label="Role selection dropdown menu" v-model="selectedRole" :options="roleOptions" option-label="label" option-value="value" placeholder="Selecciona un rol" class="border-round-3xl w-12rem "></pv-dropDown>
+              <pv-drop-down aria-label="Role selection dropdown menu" v-model="selectedRole" :options="roleOptions" option-label="label" option-value="value" placeholder="Selecciona un rol" class="border-round-3xl w-12rem "></pv-drop-down>
             </div>
 
             <pv-button aria-label="Create account button" label="Crear cuenta" class="border-round-xl w-10rem bg-blue-600 text-lg mt-4 mr-1 p-3" @click="registerAccount"/>
