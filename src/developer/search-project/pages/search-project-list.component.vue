@@ -33,16 +33,16 @@ export default{
   },
   created(){
     let id = localStorage.getItem('user id')
-    this.projectService.getAvailableProjects().then((response) => {
+    this.projectService.getAllProjects().then((response) => {
       this.projects = response.map(project => new ProjectEntity({
-        project_ID: project.project_ID,
-        nameProject: project.nameProject,
-        descriptionProject: project.descriptionProject,
-        enterprise_id: project.enterprise_id
+        project_ID: project.id,
+        nameProject: project.name,
+        descriptionProject: project.description,
+        enterprise_id: project.ownerId
       }));
-      this.companyIds = response.map(project => project.enterprise_id);
+      this.companyIds = response.map(project => project.ownerId);
       this.companyIds.forEach(companyId => {
-        this.homeService.getEnterpriseInfoByEnterpriseId(companyId).then( (response) =>{
+        this.homeService.getEnterpriseInfoByID(companyId).then( (response) =>{
           console.log(response)
           this.company.push(new CompanyExplorerEntity(
               response.data.enterprise_id,
