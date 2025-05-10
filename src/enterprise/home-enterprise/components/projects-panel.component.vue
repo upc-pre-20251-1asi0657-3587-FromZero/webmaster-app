@@ -14,7 +14,13 @@ export default {
       position: 'center',
       visible: false,
       applicantsList: [],
-      myProject: null
+      myProject: null,
+      projectStateMap: {
+        'LOOKING_FOR_DEVELOPERS' : 'Buscando Desarrolladores',
+        'NOT_STARTED': 'No Iniciado',
+        'IN_PROCESS': 'En Proceso',
+        'COMPLETED': 'Completado'
+      }
     };
   },
   methods: {
@@ -67,7 +73,14 @@ export default {
       if (!newValue) {
         this.applicantsList = []; // Vacía el array cuando el diálogo no es visible
       }
-    }
+    },
+
+    //Metodo para manejar el acceso a la lista de entregables
+    handleProjectClick(projectID, state) {
+      if (state === 2) { // Solo si el estado es "IN_PROCESS" (valor 2)
+        this.goToDeliverablesList(projectID);
+      }
+    },
   },
   watch: {
     visible(newValue) {
@@ -93,8 +106,12 @@ export default {
       <hr>
       <template class="project-list" v-for="project in projects">
         <div class="project">
-          <h4 @click="goToDeliverablesList(project.project_ID)"> {{project.nameProject}}</h4>
-          <p class="subtitle tipo-proyecto">{{project.stateProject}}</p>
+          <h4 @click="handleProjectClick(project.project_ID, project.stateProject)">
+            {{ project.nameProject }}
+          </h4>
+          <p class="subtitle tipo-proyecto">
+            {{ projectStateMap[project.stateProject] }}
+          </p>
           <p class="postulantes"  v-if="!project.started" @click="openPosition('center', project.started, project.applicants_id, project.project_ID)">{{ $t('projects-panel-enterprise-part2') }}: {{project.applicants_id.length}}</p>
           <pv-progressbar v-else :value="project.projectProgressBar"></pv-progressbar>
         </div>
@@ -104,6 +121,10 @@ export default {
 
   <div class="card">
     <pv-dialog v-model:visible="visible" :header="$t('projects-panel-enterprise-part3')" :style="{ width: '25rem', height: '100vh', display: 'block', overflow:'auto' }" :position="position" :modal="true" :draggable="false">
+      <div v-if="applicantsList.length === 0">
+        Aún no hay aplicantes al proyecto
+      </div>
+
       <template class="applicants-list" v-for="(applicant) in this.applicantsList">
         <div class="project applicant">
           <h4>{{applicant.firstName +" "+applicant.lastName}}</h4>
