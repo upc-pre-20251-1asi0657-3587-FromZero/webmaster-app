@@ -8,9 +8,9 @@ export default {
     return {
       isEditingMain: false,
       mainText: '',
-      isEditingCategories: [false, false, false, false, false, false],
+      isEditingCategories: [false, false, false, false, false],
       categoryTexts: [],
-      categories: ['categories.country', 'categories.phone', 'categories.email', 'categories.projectsFinished', 'categories.specialties'],
+      categories: ['categories.country', 'categories.phone', 'categories.email', 'categories.specialties'],
       value: 0,
       homeService: new HomeService(),
       displayDialog: false,
@@ -25,7 +25,7 @@ export default {
           description: this.mainText,
           country: this.categoryTexts[0],
           phone: this.categoryTexts[1],
-          specialties: this.categoryTexts[4],
+          specialties: this.categoryTexts[3],
           profile_img_url: this.developer.profile_img_url
         }
         this.homeService.updateDevInfo(this.developer.id, updatedInfo)
@@ -41,7 +41,7 @@ export default {
           description: this.mainText,
           country: this.categoryTexts[0],
           phone: this.categoryTexts[1],
-          specialties: this.categoryTexts[4]
+          specialties: this.categoryTexts[3]
         }
         this.homeService.updateDevInfo(this.developer.id, updatedInfo)
       }
@@ -77,13 +77,14 @@ export default {
   },
   created() {
     console.log("hola", this.developer);
+    let email = localStorage.getItem("email");
     this.categoryTexts = [
       this.developer.country,
       this.developer.phone,
-      this.developer.user.mail,
-      this.developer.completed_projects,
+      email,
       this.developer.specialties
     ];
+    console.log(this.categoryTexts, "categoryTexts");
     //this.value = this.developer.rating
     this.mainText = this.developer.description
   }

@@ -58,6 +58,7 @@ export default {
       localStorage.setItem('user id', idJSON);
       localStorage.setItem('user type', typJSON);
       localStorage.setItem('token', tokenJSON);
+      localStorage.setItem('email', this.email);
     },
     async handleLogin(userData) {
       console.log("hola", userData);
@@ -73,8 +74,9 @@ export default {
         this.userType = role === "ROLE_ENTERPRISE" ? "enterprises" :
             role === "ROLE_DEVELOPER" ? "developers" : null;
         this.token = response.token;
+        this.email = response.username
 
-        this.saveUserToLocalStorage(this.loggedId, this.userType, this.token);
+        this.saveUserToLocalStorage(this.loggedId, this.userType, this.token, this.email);
         this.navigateToHome();
       } catch (error) {
         console.log("Usuario no encontrado");

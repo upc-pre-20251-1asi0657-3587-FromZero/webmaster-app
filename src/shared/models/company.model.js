@@ -11,8 +11,8 @@ export class CompanyEntity{
     User;
     constructor(id, enterprise_name, profile_img_url, description, country, RUC, phone, website, sector, User=[]){
         this.id = id
-        this.enterprise_name = enterprise_name;
-        this.profile_img_url = profile_img_url;
+        this.enterpriseName = enterprise_name;
+        this.profileImgUrl = profile_img_url;
         this.description = description;
         this.country = country;
         this.RUC = RUC;

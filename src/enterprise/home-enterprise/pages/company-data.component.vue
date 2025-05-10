@@ -30,9 +30,9 @@ export default {
 
       // Instanciamos CompanyEntity correctamente
       this.myCom = new CompanyEntity(
-          this.enterprise.enterprise_id,
-          this.enterprise.enterprise_name,
-          this.enterprise.profile_img_url,
+          this.enterprise.id,
+          this.enterprise.enterpriseName,
+          this.enterprise.profileImgUrl,
           this.enterprise.description,
           this.enterprise.country,
           this.enterprise.ruc,

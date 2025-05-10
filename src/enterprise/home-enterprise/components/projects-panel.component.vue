@@ -81,7 +81,7 @@ export default {
     }
   },
   created() {
-
+    console.log("hola", this.projects);
   }
 };
 </script>
@@ -91,6 +91,8 @@ export default {
     <template #title> <p  style="color: #3554BC">{{ $t('projects-panel-enterprise-part1') }}</p></template>
     <template #content v-if="projects">
       <hr>
+      <div class="p-m-3" v-if="projects.length === 0">No hay proyectos aún.</div>
+
       <template class="project-list" v-for="project in projects">
         <div class="project">
           <h4 @click="goToDeliverablesList(project.project_ID)"> {{project.nameProject}}</h4>

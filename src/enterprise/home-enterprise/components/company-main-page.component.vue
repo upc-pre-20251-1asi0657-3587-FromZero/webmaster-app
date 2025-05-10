@@ -14,6 +14,8 @@ export default {
     const enterpriseId = inject("enterpriseId"); // ✅ Inyectado desde padre
     const homeService = new HomeService();
 
+    console.log(props.company, "props.company");
+
     // Estado reactivo
     const isEditingMain = ref(false);
     const mainText = ref(props.company.description || "");
@@ -125,14 +127,14 @@ export default {
   <pv-card aria-label="Company Information">
     <template #title>
       <pv-avatar
-          :image="company.profile_img_url"
+          :image="company.profileImgUrl"
           class="mr-2"
           size="xlarge"
           shape="circle"
           @click="openDialog"
       />
       <div aria-label="Company Name">
-        <p>{{ company.enterprise_name }}</p>
+        <p>{{ company.enterpriseName}}</p>
       </div>
     </template>
 

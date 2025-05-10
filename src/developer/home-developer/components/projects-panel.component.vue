@@ -38,6 +38,8 @@ export default {
     </template>
     <template #content>
       <hr>
+      <div class="p-m-3" v-if="projects.length === 0">No hay proyectos aún.</div>
+
       <div class="project-list" v-for="project in projects">
         <div class="project" @click="goToDeliverablesList(project.project_ID)">
           <h4>{{ project.nameProject }}</h4>
