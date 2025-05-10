@@ -1,6 +1,7 @@
 <script>
 import { ref, computed } from "vue";
 import { HomeService } from "../../../../public/services/home.service.js";
+import useSupabase from "../../../utils/supabase.js"
 
 export default {
   name: "company-main-page",
@@ -12,11 +13,13 @@ export default {
   },
   setup(props) {
     const homeService = new HomeService();
+    const { uploadFile, getPublicUrl } = useSupabase();
+
+    const previewImage = ref(null);
+    const selectedFile = ref(null);
 
     // Usar directamente el ID de la empresa desde props
     const enterpriseId = computed(() => props.company.enterprise_id || props.company.id);
-
-    console.log(props, "props.company");
 
     // Estados de edición
     const isEditingMain = ref(false);
@@ -81,22 +84,71 @@ export default {
       isEditingCategories.value[index] = !isEditingCategories.value[index];
     };
 
+    const handleFileSelect = (event) => {
+      const file = event.files[0];
+      if (!file) return;
+
+      selectedFile.value = file;
+
+      // Crear vista previa
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        previewImage.value = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    };
 
     // Actualizar imagen
     const updateImg = async () => {
-      if (!newImgUrl.value) return;
-      const imgData = { profileImgUrl: newImgUrl.value };
-      newImgUrl.value = "";
       try {
-        await homeService.updateEnterpriseProfileImg(enterpriseId.value, imgData);
-        window.location.reload();
+        if (selectedFile.value) {
+          const fileExtension = selectedFile.value.name.split('.').pop().toLowerCase();
+          const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+
+          if (!allowedExtensions.includes(fileExtension)) {
+            throw new Error('Formato de imagen no válido. Use JPG, PNG o GIF');
+          }
+
+          // Nombre del archivo: "profile_[ID_EMPRESA].[extensión]"
+          const filePath = `profiles/profile_${enterpriseId.value}.${fileExtension}`;
+
+          // Opción 1: Usando tu función uploadFile existente
+          await uploadFile("webmasterprofiles", filePath, selectedFile.value);
+
+          const publicUrl = `${getPublicUrl("webmasterprofiles", filePath)}?t=${Date.now()}`;
+          newImgUrl.value = publicUrl;
+        }
+
+        if (newImgUrl.value) {
+          const updatedInfo = {
+            enterpriseName: props.company.enterprise_name,
+            description: mainText.value,
+            country: categoryTexts.value[0],
+            RUC: categoryTexts.value[1],
+            phone: categoryTexts.value[2],
+            website: categoryTexts.value[3],
+            profileImgUrl: newImgUrl.value, // Usar la nueva URL
+            sector: categoryTexts.value[4]
+          };
+
+          await homeService.updateEnterpriseInfo(enterpriseId.value, updatedInfo);
+
+          closeDialog();
+
+          window.location.reload();
+        }
       } catch (err) {
         console.error("Error al actualizar imagen:", err);
       }
     };
 
     const openDialog = () => (displayDialog.value = true);
-    const closeDialog = () => (displayDialog.value = false);
+    const closeDialog = () => {
+      displayDialog.value = false;
+      previewImage.value = null;
+      selectedFile.value = null;
+      newImgUrl.value = "";
+    };
 
     return {
       isEditingMain,
@@ -105,9 +157,11 @@ export default {
       categoryTexts,
       displayDialog,
       newImgUrl,
+      previewImage,
       toggleEditingMain,
       toggleEditingCategory,
       updateImg,
+      handleFileSelect,
       openDialog,
       closeDialog
     };
@@ -116,7 +170,7 @@ export default {
 </script>
 
 <template>
-  <pv-card aria-label="Company Information">
+  <pv-card aria-label="Company Information" class="flex col gap-1">
     <template #title>
       <pv-avatar
           :image="company.profile_img_url"
@@ -184,18 +238,43 @@ export default {
   </pv-card>
 
   <!-- Diálogo para cambiar imagen -->
-  <pv-modal v-model:visible="displayDialog" modal header="Update Image URL">
-    <p>Enter the new image URL:</p>
-    <input type="text" v-model="newImgUrl" class="editable-input" />
-    <pv-button label="Accept" @click="updateImg" />
-    <pv-button label="Cancel" @click="closeDialog" />
+  <pv-modal v-model:visible="displayDialog" modal header="Update Image URL" style="width: 80%; height: 100%;max-width: 600px; min-width: 300px; max-height: 500px;" class="flex flex-column justify-content-center gap-5">
+    <img
+        v-if="previewImage"
+        :src="previewImage"
+        alt="Vista previa"
+        class="preview-image"
+    />
+    <pv-file-upload
+        mode="basic"
+        name="file"
+        :customUpload="true"
+        @select="handleFileSelect"
+        accept="image/*"
+        chooseLabel="Select Image"
+        class="mb-3"
+    />
+
+    <div class="flex flex-column gap-2">
+      <label for="imageUrl">O ingresar URL:</label>
+      <pv-inputText
+          id="imageUrl"
+          v-model="newImgUrl"
+          placeholder="https://ejemplo.com/imagen.jpg"
+      />
+    </div>
+
+    <footer class="w-full flex justify-content-center gap-2 mt-4">
+      <pv-button label="Accept" @click="updateImg" />
+      <pv-button label="Cancel" @click="closeDialog" />
+    </footer>
   </pv-modal>
 </template>
 
   <style scoped>
     .editable-container { display:flex; align-items:center; margin: .5rem 0; }
     .editable-input { flex:1; border-bottom:1px solid #ccc; padding: .25rem; }
-    .edit-button { margin-left:.5rem; }
+    .edit-button { margin-left:.5rem; max-height: 34px; }
     .secondary { display:grid; grid-template-columns: 1fr auto; gap: .5rem; align-items:center; }
     .subtitle { color: #64748b; width: 6rem; }
 
@@ -215,14 +294,15 @@ hr{
     margin-top:2rem;
   }
 }
-
 .p-card {
   width: 30rem;
   min-width: 20rem;
   box-shadow: 0 20px 40px rgb(57, 57, 57);
   margin-top: 4rem;
   max-height: 800px;
+  min-height: 620px;
 }
+
 :deep(.p-card-title) {
   display: flex;
   align-items: center;
@@ -261,6 +341,8 @@ img {
   border: none;
 }
 
+
+
 .editable-input{
   border: none;
   border-bottom: 1px solid black;
@@ -296,5 +378,14 @@ span{
   display:grid;
   grid-template-columns: 10fr 10fr 1fr;
 }
+    .preview-image {
+      max-width: 100%;
+      max-height: 300px;
+      object-fit: contain;
+      border-radius: 8px;
+      margin: 0 auto;
+      display: block;
+      border: 1px solid #ddd;
+    }
 
 </style>
