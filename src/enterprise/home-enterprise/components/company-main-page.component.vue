@@ -16,15 +16,16 @@ export default {
     // Usar directamente el ID de la empresa desde props
     const enterpriseId = computed(() => props.company.enterprise_id || props.company.id);
 
+    console.log(props, "props.company");
+
     // Estados de edición
     const isEditingMain = ref(false);
     const mainText = ref(props.company.description || "");
-    const isEditingCategories = ref([false, false, false, false, false, false]);
+    const isEditingCategories = ref([false, false, false, false, false]);
     const categoryTexts = ref([
       props.company.country || "",
-      props.company.ruc || "",
+      props.company.RUC || "",
       props.company.phone || "",
-      props.company.email || "",
       props.company.website || "",
       props.company.sector || ""
     ]);
@@ -39,11 +40,11 @@ export default {
           enterpriseName:    props.company.enterprise_name,  // si quieres permitir editarlo
           description:       mainText.value,
           country:           categoryTexts.value[0],
-          ruc:               categoryTexts.value[1],
+          RUC:               categoryTexts.value[1],
           phone:             categoryTexts.value[2],
-          website:           categoryTexts.value[4],
+          website:           categoryTexts.value[3],
           profileImgUrl:     props.company.profile_img_url,   // o profileImgUrl
-          sector:            categoryTexts.value[5]
+          sector:            categoryTexts.value[4]
         };
 
         try {
@@ -63,11 +64,11 @@ export default {
           enterpriseName: props.company.enterprise_name,
           description:    mainText.value,
           country:        categoryTexts.value[0],
-          ruc:            categoryTexts.value[1],
+          RUC:            categoryTexts.value[1],
           phone:          categoryTexts.value[2],
-          website:        categoryTexts.value[4],
+          website:        categoryTexts.value[3],
           profileImgUrl:  props.company.profile_img_url,
-          sector:         categoryTexts.value[5]
+          sector:         categoryTexts.value[4]
         };
 
         try {

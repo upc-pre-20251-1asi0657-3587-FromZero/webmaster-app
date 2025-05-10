@@ -12,7 +12,7 @@ export default {
     const projectService = new ProjectService();
 
     const loadProjects = async () => {
-      const entId = parseInt(localStorage.getItem("enterprise id"), 10);
+      const entId = parseInt(localStorage.getItem("user id"), 10);
       if (!entId) return;
       try {
         let list = await projectService.getProjectByEnterprise(entId);
