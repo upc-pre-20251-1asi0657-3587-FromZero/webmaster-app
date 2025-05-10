@@ -16,13 +16,15 @@ export default {
     };
   },
   async created() {
-    const userId = Number(localStorage.getItem("userid"));
+    // read the enterpriseId set in company-data
+    const userId = Number(localStorage.getItem('user id'));
     if (userId) {
       try {
-       this.projectsData = await this.projectService.getProjectByDeveloper(userId);
+        this.projectsData = await this.projectService.getProjectByDeveloper(userId);
+        console.log('Projects data:', this.projectsData);
         this.buildProjects();
       } catch (err) {
-        console.error('Failed loading projects for developer', err);
+        console.error('Failed loading projects for enterprise', err);
       }
     } else {
       console.warn('No enterpriseId found in localStorage');
@@ -47,6 +49,8 @@ export default {
         projectProgressBar: p.projectProgressBar,
         started: p.started
       }));
+
+      console.log('My projects:', this.myProjects);
     }
   }
 };
@@ -54,7 +58,7 @@ export default {
 
 <template>
   <div v-if="myProjects">
-    <ProjectsPanelComponent :projects="myProjects" />
+    <ProjectsPanelComponent :projects="myProjects"/>
   </div>
 </template>
 
