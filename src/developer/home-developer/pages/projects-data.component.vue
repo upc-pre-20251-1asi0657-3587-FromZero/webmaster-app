@@ -17,11 +17,11 @@ export default {
   },
   async created() {
     // read the enterpriseId set in company-data
-    const entId = Number(localStorage.getItem('enterpriseId'));
-    if (entId) {
+    const userId = Number(localStorage.getItem('user id'));
+    if (userId) {
       try {
-        const response = await this.projectService.getProjectByEnterprise(entId);
-        this.projectsData = response;
+        this.projectsData = await this.projectService.getProjectByDeveloper(userId);
+        console.log('Projects data:', this.projectsData);
         this.buildProjects();
       } catch (err) {
         console.error('Failed loading projects for enterprise', err);
@@ -49,13 +49,15 @@ export default {
         projectProgressBar: p.projectProgressBar,
         started: p.started
       }));
+
+      console.log('My projects:', this.myProjects);
     }
   }
 };
 </script>
 
 <template>
-  <div v-if="myProjects.length">
+  <div v-if="myProjects">
     <ProjectsPanelComponent :projects="myProjects" />
   </div>
 </template>

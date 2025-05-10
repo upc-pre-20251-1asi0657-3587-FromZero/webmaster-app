@@ -17,7 +17,7 @@ export default {
   },
   created(){
     let id=localStorage.getItem('user id');
-    this.homeService.getDevInfoByID(id).then((response) => {
+    this.homeService.getDevProfileByUserId(id).then((response) => {
       this.developer = response.data;
       this.developerId = response.data.developer_id;
       localStorage.setItem("developer id", this.developerId);

@@ -18,13 +18,16 @@ export default {
   },
   created(){
     let id = this.$route.params.id;
-    this.homeService.getDevInfoByID(id).then((response)=> {
+    console.log(id, "ID");
+    this.homeService.getDevProfileByUserId(id).then((response)=> {
       this.developerProfile = response.data;
     })
 
+    console.log("projects");
     this.projectService.getProjectByDeveloper(id).then((response) => {
       this.developerRepository = response;
     });
+    console.log(this.developerRepository);
   },
   methods(){
 
