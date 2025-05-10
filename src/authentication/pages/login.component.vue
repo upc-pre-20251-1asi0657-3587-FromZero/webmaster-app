@@ -47,13 +47,6 @@ export default {
     //   console.log("Usuario no encontrado");
     // },
     navigateToHome() {
-
-      if (this.userType === "E") {
-        this.userType = 'enterprises'
-      }
-      else if(this.userType === "D"){
-        this.userType = 'developers'
-      }
       this.saveUserToLocalStorage(this.loggedId,this.userType);
       this.$router.push(`/main/${this.userType}/${this.loggedId}`);
     },
@@ -67,17 +60,20 @@ export default {
       localStorage.setItem('token', tokenJSON);
     },
     async handleLogin(userData) {
-      console.log("hola"+ userData)
-      // userData contendrá user y password enviados desde el componente LoginCard
+      console.log("hola", userData);
       this.user = userData.Mail;
       this.password = userData.Password;
 
       try {
         const response = await this.authService.authenticate(this.user, this.password);
         console.log(response);
-        this.loggedId = response.user_id;
-        this.userType = response.user_type;
+
+        this.loggedId = response.id;
+        const role = response.roles[0];
+        this.userType = role === "ROLE_ENTERPRISE" ? "enterprises" :
+            role === "ROLE_DEVELOPER" ? "developers" : null;
         this.token = response.token;
+
         this.saveUserToLocalStorage(this.loggedId, this.userType, this.token);
         this.navigateToHome();
       } catch (error) {

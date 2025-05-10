@@ -1,61 +1,71 @@
 import axios from "axios";
-import {environment} from "@/environment/environment.js";
+import { environment } from "@/environment/environment.js";
 
 const token = localStorage.getItem('token');
 
 const http = axios.create({
-    baseURL:environment.baseUrl,
+    baseURL: environment.baseUrl,
     headers: {
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
     }
 });
+
 export class ProjectService {
     async getAllProjects() {
-        const response = await http.get('/Project');
+        const response = await http.get('/projects');
         return response.data;
     }
+
     async getProjectById(id) {
-        const response = await http.get(`/Project/${id}`);
+        const response = await http.get(`/projects/${id}`);
         return response.data;
     }
-    async getAvailableProjects(){
-        const response = await http.get('/Project/available-projects')
+
+    async getProjectByDeveloper(developerUserId) {
+        const response = await http.get(`/projects/developer/${developerUserId}`);
         return response.data;
     }
-    async getProjectByDeveloper(developerId){
-        const response = await http.get(`/Project/by-developer/${developerId}`)
+
+    async getProjectByEnterprise(enterpriseUserId) {
+        const response = await http.get(`/projects/enterprise/${enterpriseUserId}`);
         return response.data;
     }
-    async getProjectByEnterprise(enterpriseId){
-        const response = await  http.get(`/Project/by-enterprise/${enterpriseId}`)
+
+    async createProject(project) {
+        const response = await http.post(`/projects`, project);
         return response.data;
     }
-    async createProject(Project){
-        const response = await http.post(`/Project`, Project);
+
+    async updateProject(id, project) {
+        const response = await http.put(`/projects/${id}`, project);
         return response.data;
     }
-    async updateProject(id, Project){
-        const response = await http.put(`/Project/${id}`, Project);
-        return response.data;
-    }
+
     async deleteProject(id) {
-        const response = await http.delete(`/Project/${id}`);
+        const response = await http.delete(`/projects/${id}`);
         return response.data;
     }
-    async assignDeveloper(project_id, Project){
-        const response = await http.post(`/Project/assign-developer/${project_id}`, Project);
+
+    async assignDeveloper(projectId, data) {
+        const response = await http.patch(`/projects/${projectId}/assign-developer`, data);
         return response.data;
     }
-    async addApplicant(project_id, Project){
-        const response = await http.post(`/Project/add-applicant/${project_id}`, Project);
+
+    async addApplicant(projectId, data) {
+        const response = await http.patch(`/projects/${projectId}/add-candidate`, data);
         return response.data;
     }
-    async deleteDeveloper(project_id, Project) {
-        const response = await http.delete(`/Project/delete-developer/${project_id}`, Project);
+
+    async getProgrammingLanguages() {
+        const response = await http.get('/programming-languages');
         return response.data;
     }
-    async deleteApplicant(project_id, Project) {
-        const response = await http.delete(`/Project/delete-applicant/${project_id}`, Project);
+
+    async getFrameworks() {
+        const response = await http.get('/frameworks');
         return response.data;
     }
+
+    // Los deletes de "applicant" y "developer" ya no existen según el nuevo backend
 }

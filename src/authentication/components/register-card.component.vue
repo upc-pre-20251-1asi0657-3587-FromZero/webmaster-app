@@ -22,36 +22,36 @@ methods:{
   async registerAccount() {
     if (this.selectedRole === 'empresa') {
       const enterpriseData = {
-        mail: this.mail,
+        username: this.mail,
         password: this.password,
-        user_type: "E",
-        enterprise_name: this.companyName
+        enterpriseName: this.companyName
       };
-      this.authService.registerEnterprise(enterpriseData).then((response) => {
-        console.log(response)
-        if (response.status === "200") {
-          console.log("Desarrollador creado");
-          this.$router.push('/login');
-        }
-      });
+      try {
+        const response = await this.authService.registerEnterprise(enterpriseData);
+        console.log("Empresa creada:", response);
+        this.$router.push('/login');
+      } catch (error) {
+        console.error("Error al registrar empresa", error);
+      }
     }
+
     if (this.selectedRole === 'desarrollador') {
       const developerData = {
-        Mail: this.mail,
-        Password: this.password,
+        username: this.mail,
+        password: this.password,
         firstName: this.firstName,
-        user_type: "D",
         lastName: this.lastName
       };
-      this.authService.registerDeveloper(developerData).then((response) => {
-        console.log(response)
-        if (response.status === "200") {
-          console.log("Desarrollador creado");
-          this.$router.push('/login')
-        }
-      });
+      try {
+        const response = await this.authService.registerDeveloper(developerData);
+        console.log("Desarrollador creado:", response);
+        this.$router.push('/login');
+      } catch (error) {
+        console.error("Error al registrar desarrollador", error);
+      }
     }
   }
+
 },
 };
 </script>

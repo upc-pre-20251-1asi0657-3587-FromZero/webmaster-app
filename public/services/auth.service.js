@@ -1,34 +1,51 @@
 import axios from 'axios';
-import {environment} from "../../src/environment/environment.js";
+import { environment } from "../../src/environment/environment.js";
 
-const http= axios.create({
-    baseURL:environment.baseUrl,
-})
+const token = localStorage.getItem('token');
 
-export class AuthService{
+const http = axios.create({
+    baseURL: environment.baseUrl,
+    headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+    }
+});
 
+export class AuthService {
 
-    async authenticate(mail, password) {
+    async authenticate(username, password) {
         try {
-            const response = await http.get(`/Auth/sign-in/${mail}&${password}`);
-            //const userId = response.data.user_id; // Obtener el id del usuario desde la respuesta
-            //localStorage.setItem('userId', userId); // Guardar el userId en localStorage
-            return response.data; 
+            const response = await http.post('/authentication/sign-in', {
+                username,
+                password
+            });
+            const { token } = response.data;
+
+            // Guarda el token en localStorage
+            localStorage.setItem('token', token);
+            return response.data;
         } catch (error) {
             console.error('Error en la autenticación:', error);
-            throw error; // Propagar el error para que el manejador lo gestione
+            throw error;
         }
     }
 
-    async registerDeveloper(Developer) {
-        const response = await http.post('/Auth/register-developer', Developer);
+    async registerDeveloper(developer) {
+        const response = await http.post('/authentication/sign-up/developer', {
+            username: developer.username,
+            password: developer.password,
+            firstName: developer.firstName,
+            lastName: developer.lastName
+        });
         return response.data;
     }
 
-    async registerEnterprise(Enterprise) {
-        const response = await http.post('/Auth/register-enterprise', Enterprise);
+    async registerEnterprise(enterprise) {
+        const response = await http.post('/authentication/sign-up/enterprise', {
+            username: enterprise.username,
+            password: enterprise.password,
+            enterpriseName: enterprise.enterpriseName
+        });
         return response.data;
     }
-
-
 }

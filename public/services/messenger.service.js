@@ -5,9 +5,10 @@ import {environment} from "@/environment/environment.js";
 const token = localStorage.getItem('token');
 
 const http = axios.create({
-    baseURL:environment.baseUrl,
+    baseURL: environment.baseUrl,
     headers: {
-        'Authorization': `Bearer ${token}`
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
     }
 });
 export default {

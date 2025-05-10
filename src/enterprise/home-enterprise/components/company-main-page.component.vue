@@ -1,136 +1,210 @@
 <script>
-import {CompanyEntity} from "../../../shared/models/company.model.js";
-import {HomeService} from "../../../../public/services/home.service.js";
+import { inject, ref, computed } from "vue";
+import { HomeService } from "../../../../public/services/home.service.js";
 
 export default {
   name: "developer-page",
-  data() {
-    return {
-      isEditingMain: false,
-      mainText: '',
-      isEditingCategories: [false, false, false, false, false, false],
-      categoryTexts: [],
-      categories: ['categories.country', 'categories.ruc', 'categories.phone', 'categories.email', 'categories.website', 'categories.sector'],
-      homeService: new HomeService(),
-      displayDialog: false,
-      newImgUrl: ''
-    };
-  },
-  methods: {
-    toggleEditingMain() {
-      if(this.isEditingMain){
-        let updatedInfo ={
-          description: this.mainText,
-          country: this.categoryTexts[0],
-          ruc: this.categoryTexts[1],
-          phone: this.categoryTexts[2],
-          website: this.categoryTexts[4],
-          profile_img_url: this.company.profile_img_url,
-          sector: this.categoryTexts[5]
-        }
-        this.homeService.updateEnterpriseInfo(this.company.id, updatedInfo)
-      }
-      this.isEditingMain = !this.isEditingMain;
-    },
-
-    toggleEditingCategory(index) {
-      if(this.isEditingCategories[index]){
-        let updatedInfo ={
-          description: this.mainText,
-          country: this.categoryTexts[0],
-          ruc: this.categoryTexts[1],
-          phone: this.categoryTexts[2],
-          website: this.categoryTexts[4],
-          profile_img_url: this.company.profile_img_url,
-          sector: this.categoryTexts[5]
-        }
-        this.homeService.updateEnterpriseInfo(this.company.id, updatedInfo)
-      }
-      this.isEditingCategories[index] = !this.isEditingCategories[index];
-    },
-    updateImg(){
-      if(this.newImgUrl === ''){
-        return;
-      }
-      let img ={
-        profile_img_url: this.newImgUrl
-      }
-      this.newImgUrl = '';
-      this.homeService.updateEnterpriseProfileImg(this.company.id, img)
-          .then(() => {
-            this.displayDialog = false;
-            window.location.reload();
-          });
-    },
-    openDialog(){
-      this.displayDialog = true;
-    },
-    closeDialog(){
-      this.displayDialog = false;
-    }
-  },
-  components: {},
   props: {
     company: {
-      type: CompanyEntity,
+      type: Object,
       required: true
     }
   },
-  created() {
-    this.categoryTexts = [
-      this.company.country,
-      this.company.RUC,
-      this.company.phone,
-      this.company.User.mail,
-      this.company.website,
-      this.company.sector,
-    ];
-    this.mainText = this.company.description
-  }
-}
+  setup(props) {
+    const enterpriseId = inject("enterpriseId"); // ✅ Inyectado desde padre
+    const homeService = new HomeService();
 
+    // Estado reactivo
+    const isEditingMain = ref(false);
+    const mainText = ref(props.company.description || "");
+    const isEditingCategories = ref([false, false, false, false, false, false]);
+    const categoryTexts = ref([
+      props.company.country || "",
+      props.company.RUC || "",
+      props.company.phone || "",
+      props.company.User?.mail || "",
+      props.company.website || "",
+      props.company.sector || ""
+    ]);
+    const displayDialog = ref(false);
+    const newImgUrl = ref("");
+
+    // Categorías para labels
+    const categories = [
+      "categories.country",
+      "categories.ruc",
+      "categories.phone",
+      "categories.email",
+      "categories.website",
+      "categories.sector"
+    ];
+
+    // Función para actualizar información general
+    const toggleEditingMain = async () => {
+      if (isEditingMain.value) {
+        const updatedInfo = {
+          description: mainText.value,
+          country: categoryTexts.value[0],
+          ruc: categoryTexts.value[1],
+          phone: categoryTexts.value[2],
+          website: categoryTexts.value[4],
+          profile_img_url: props.company.profile_img_url,
+          sector: categoryTexts.value[5]
+        };
+
+        try {
+          await homeService.updateEnterpriseInfo(enterpriseId, updatedInfo);
+        } catch (err) {
+          console.error("Error al actualizar información:", err);
+        }
+      }
+      isEditingMain.value = !isEditingMain.value;
+    };
+
+    // Función para editar categoría individual
+    const toggleEditingCategory = async (index) => {
+      if (isEditingCategories.value[index]) {
+        const updatedInfo = {
+          description: mainText.value,
+          country: categoryTexts.value[0],
+          ruc: categoryTexts.value[1],
+          phone: categoryTexts.value[2],
+          website: categoryTexts.value[4],
+          profile_img_url: props.company.profile_img_url,
+          sector: categoryTexts.value[5]
+        };
+
+        try {
+          await homeService.updateEnterpriseInfo(enterpriseId, updatedInfo);
+        } catch (err) {
+          console.error("Error al actualizar categoría:", err);
+        }
+      }
+      isEditingCategories.value[index] = !isEditingCategories.value[index];
+    };
+
+    // Función para actualizar imagen
+    const updateImg = async () => {
+      if (!newImgUrl.value) return;
+
+      const imgData = { profile_img_url: newImgUrl.value };
+      newImgUrl.value = "";
+
+      try {
+        await homeService.updateEnterpriseProfileImg(enterpriseId, imgData);
+        displayDialog.value = false;
+        window.location.reload(); // O actualiza el estado local si prefieres
+      } catch (err) {
+        console.error("Error al actualizar imagen:", err);
+      }
+    };
+
+    // Funciones para el diálogo
+    const openDialog = () => (displayDialog.value = true);
+    const closeDialog = () => (displayDialog.value = false);
+
+    return {
+      isEditingMain,
+      mainText,
+      isEditingCategories,
+      categoryTexts,
+      categories,
+      displayDialog,
+      newImgUrl,
+      toggleEditingMain,
+      toggleEditingCategory,
+      updateImg,
+      openDialog,
+      closeDialog
+    };
+  }
+};
 </script>
 
 <template>
   <pv-card aria-label="Company Information">
     <template #title>
-      <pv-avatar :image='company.profile_img_url' class="mr-2" size="xlarge" shape="circle" @click="openDialog"/>
+      <pv-avatar
+          :image="company.profile_img_url"
+          class="mr-2"
+          size="xlarge"
+          shape="circle"
+          @click="openDialog"
+      />
       <div aria-label="Company Name">
-        <p>{{company.enterprise_name}}</p>
+        <p>{{ company.enterprise_name }}</p>
       </div>
     </template>
 
     <template #content>
-      <hr aria-label="Separator Line">
+      <hr aria-label="Separator Line" />
       <div class="subtitle" aria-label="Summary">{{ $t('company-main-page-part1') }}</div>
+
+      <!-- Campo principal (descripción) -->
       <div class="editable-container" aria-label="Main Text Container">
-        <span v-if="!isEditingMain" class="editable-text" aria-label="Main Text">{{mainText}}</span>
-        <pv-textarea v-else v-model="mainText" type="text" class="editable-input" autoResize aria-label="Main Text Input"/>
-        <pv-button @click="toggleEditingMain" icon="pi pi-pencil" class="p-button-rounded p-button-text edit-button" v-if="!isEditingMain" aria-label="Edit Main Text Button"/>
-        <pv-button @click="toggleEditingMain" icon="pi pi-check" class="p-button-rounded p-button-text edit-button" v-else aria-label="Confirm Main Text Button"/>
+        <span v-if="!isEditingMain" class="editable-text" aria-label="Main Text">{{ mainText }}</span>
+        <pv-textarea
+            v-else
+            v-model="mainText"
+            auto-resize
+            class="editable-input"
+            aria-label="Main Text Input"
+        />
+        <pv-button
+            @click="toggleEditingMain"
+            icon="pi pi-pencil"
+            class="p-button-rounded p-button-text edit-button"
+            v-if="!isEditingMain"
+            aria-label="Edit Main Text Button"
+        />
+        <pv-button
+            @click="toggleEditingMain"
+            icon="pi pi-check"
+            class="p-button-rounded p-button-text edit-button"
+            v-else
+            aria-label="Confirm Main Text Button"
+        />
       </div>
 
+      <!-- Categorías dinámicas -->
       <template v-for="(category, index) in categories" :key="index">
-        <hr aria-label="Separator Line" v-if="index !== 0">
+        <hr :aria-label="`Separator Line ${index}`" v-if="index !== 0" />
         <div class="editable-container secondary" aria-label="Category Container">
           <div class="subtitle" aria-label="Category Title">{{ $t(category) }}</div>
           <span v-if="!isEditingCategories[index]" class="editable-text" aria-label="Category Text">{{ categoryTexts[index] }}</span>
-          <input v-else v-model="categoryTexts[index]" type="text" class="editable-input" aria-label="Category Text Input"/>
-          <pv-button @click="toggleEditingCategory(index)" icon="pi pi-pencil" class="p-button-rounded p-button-text edit-button" v-if="!isEditingCategories[index]" aria-label="Edit Category Button"/>
-          <pv-button @click="toggleEditingCategory(index)" icon="pi pi-check" class="p-button-rounded p-button-text edit-button" v-else aria-label="Confirm Category Button"/>
+          <input
+              v-else
+              v-model="categoryTexts[index]"
+              type="text"
+              class="editable-input"
+              aria-label="Category Text Input"
+          />
+          <pv-button
+              @click="toggleEditingCategory(index)"
+              icon="pi pi-pencil"
+              class="p-button-rounded p-button-text edit-button"
+              v-if="!isEditingCategories[index]"
+              aria-label="Edit Category Button"
+          />
+          <pv-button
+              @click="toggleEditingCategory(index)"
+              icon="pi pi-check"
+              class="p-button-rounded p-button-text edit-button"
+              v-else
+              aria-label="Confirm Category Button"
+          />
         </div>
       </template>
-
     </template>
   </pv-card>
 
-  <pv-modal  v-model:visible="this.displayDialog" modal header="Update Image URL" >
+  <!-- Diálogo para cambiar imagen -->
+  <pv-modal v-model:visible="displayDialog" modal header="Update Image URL">
     <p>Enter the new image URL:</p>
     <input type="text" v-model="newImgUrl" />
     <pv-button label="Accept" @click="updateImg" />
     <pv-button label="Cancel" @click="closeDialog" />
   </pv-modal>
-
 </template>
 
 <style scoped>
