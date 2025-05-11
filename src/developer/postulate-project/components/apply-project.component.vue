@@ -19,10 +19,10 @@ export default {
   },
   methods: {
     sendApplicant() {
-      let developer_Id = localStorage.getItem('developer id');
+      let developer_Id = localStorage.getItem('user id');
       let project_Id = localStorage.getItem('project id');
-      let entity = { developer_id: developer_Id };
-      this.projectService.addApplicant(project_Id, entity);
+      // let entity = { developerUserId: developer_Id };
+      this.projectService.addApplicant(project_Id, Number(developer_Id));
     },
     showTemplate() {
       this.showBlurEffect = true;
