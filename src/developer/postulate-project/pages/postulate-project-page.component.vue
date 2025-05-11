@@ -24,14 +24,17 @@ export default {
   methods: {
     createProject() {
       this.myProject = new ProjectEntity({
-        project_ID: this.projectById.project_ID,
-        nameProject: this.projectById.nameProject,
-        descriptionProject: this.projectById.descriptionProject,
-        languages: this.projectById.languages,
-        frameworks: this.projectById.frameworks,
-        budget: this.projectById.budget,
-        budgetDescription: this.projectById.budgetDescription,
-        methodologies: this.projectById.methodologies,
+        project_ID:       this.projectById.project_ID,
+        nameProject:      this.projectById.nameProject,
+        descriptionProject:this.projectById.descriptionProject,
+
+        languages:  this.projectById.languages .map(l => l.name),
+        frameworks: this.projectById.frameworks.map(f => f.name),
+
+        budget:             this.projectById.budget,
+        budgetDescription:  this.projectById.budgetDescription,
+
+        methodologies: [ this.projectById.methodologies ],
         stateProject: this.projectById.stateProject
       });
     }

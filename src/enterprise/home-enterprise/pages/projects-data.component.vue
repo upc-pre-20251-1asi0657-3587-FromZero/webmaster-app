@@ -31,7 +31,8 @@ export default {
           applicants_id:      p.applicants   || [],
           developer_id:       p.developerId  || null,
           started:            p.started
-        }));
+        }))
+        console.log("Proyectos cargados:", myProjects.value);
       } catch (err) {
         console.error("No se pudieron cargar los proyectos:", err.response?.data || err);
       }
@@ -54,11 +55,10 @@ export default {
 </script>
 
 <template>
-  <div v-if="myProjects.length">
+  <div v-if="myProjects">
     <ProjectsPanelComponent
         :projects="myProjects"
         @chooseDeveloper="applicantHandler"
     />
   </div>
-  <div v-else class="p-m-3">No hay proyectos aún.</div>
 </template>

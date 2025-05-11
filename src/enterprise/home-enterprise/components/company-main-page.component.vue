@@ -40,14 +40,14 @@ export default {
       if ( isEditingMain.value ) {
         const updatedInfo = {
           // Aquí definimos exactamente el payload que espera el endpoint PUT /enterprises/{id}
-          enterpriseName:    props.company.enterprise_name,  // si quieres permitir editarlo
-          description:       mainText.value,
-          country:           categoryTexts.value[0],
-          RUC:               categoryTexts.value[1],
-          phone:             categoryTexts.value[2],
-          website:           categoryTexts.value[3],
-          profileImgUrl:     props.company.profile_img_url,   // o profileImgUrl
-          sector:            categoryTexts.value[4]
+          enterpriseName: props.company.enterprise_name,
+          description:    mainText.value,
+          country:        categoryTexts.value[0],
+          ruc:            categoryTexts.value[1],
+          phone:          categoryTexts.value[2],
+          website:        categoryTexts.value[3],
+          profileImgUrl:  props.company.profile_img_url,
+          sector:         categoryTexts.value[4]
         };
 
         try {
@@ -67,7 +67,7 @@ export default {
           enterpriseName: props.company.enterprise_name,
           description:    mainText.value,
           country:        categoryTexts.value[0],
-          RUC:            categoryTexts.value[1],
+          ruc:            categoryTexts.value[1],
           phone:          categoryTexts.value[2],
           website:        categoryTexts.value[3],
           profileImgUrl:  props.company.profile_img_url,
@@ -110,7 +110,7 @@ export default {
           }
 
           // Nombre del archivo: "profile_[ID_EMPRESA].[extensión]"
-          const filePath = `profiles/profile_${enterpriseId.value}.${fileExtension}`;
+          const filePath = `profiles/profile_enterprise_${enterpriseId.value}.${fileExtension}`;
 
           // Opción 1: Usando tu función uploadFile existente
           await uploadFile("webmasterprofiles", filePath, selectedFile.value);
