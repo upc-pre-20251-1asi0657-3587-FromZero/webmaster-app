@@ -1,6 +1,12 @@
 <script >
 export default {
   name:'LoginCard',
+  props:{
+    errorMessage:{
+      type: String,
+      default: ''
+    }
+  },
   data() {
     return {
       Mail: '',
@@ -11,6 +17,7 @@ export default {
     login() {
       // Le devuelve los datos al login.component
       this.$emit('login', { Mail: this.Mail, Password: this.Password });
+
     }
   }
 };
@@ -19,8 +26,8 @@ export default {
 <template>
 
   <div class="bg-white">
-
-    <div class="mt-5 mx-3 bg-white">
+    <br>
+    <div class=" mx-3 bg-white">
       <i class="pi pi-chevron-left text-purple-500" style="font-size: 2rem"></i>
     </div>
 
@@ -37,7 +44,7 @@ export default {
         <pv-inputText aria-label="User input field" type="text" v-model="Mail" placeholder="Correo" class="border-round-3xl" @keyup.enter="login"/>
         <pv-password aria-label="Password input field" v-model="Password" :feedback="false" placeholder="Contraseña" class="border-round-3xl" @keyup.enter="login"/>
       </div>
-
+      <p v-if="errorMessage" class="text-red-500 text-sm">{{errorMessage}}</p>
       <pv-button aria-label="Login button" label="Iniciar sesion" class="border-round-xl w-10rem bg-blue-600 text-lg" @click="login"/>
     </div>
     <div class="color-auth font-bold">
