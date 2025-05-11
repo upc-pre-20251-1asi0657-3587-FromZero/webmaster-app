@@ -40,17 +40,43 @@
     </template>
   </pv-card>
 
-  <pv-modal v-model:visible="this.displayDialog" modal header="Update Image URL">
-    <p>Enter the new image URL:</p>
-    <input type="text" v-model="newImgUrl" />
-    <pv-button label="Accept" @click="updateImg" />
-    <pv-button label="Cancel" @click="closeDialog" />
+  <pv-modal v-model:visible="displayDialog" modal header="Update Image URL" style="width: 80%; height: 100%;max-width: 600px; min-width: 300px; max-height: 500px;" class="flex flex-column justify-content-center gap-5">
+    <img
+        v-if="previewImage"
+        :src="previewImage"
+        alt="Vista previa"
+        class="preview-image"
+    />
+    <pv-file-upload
+        mode="basic"
+        name="file"
+        :customUpload="true"
+        @select="handleFileSelect"
+        accept="image/*"
+        chooseLabel="Select Image"
+        class="mb-3"
+    />
+
+    <div class="flex flex-column gap-2">
+      <label for="imageUrl">O ingresar URL:</label>
+      <pv-inputText
+          id="imageUrl"
+          v-model="newImgUrl"
+          placeholder="https://ejemplo.com/imagen.jpg"
+      />
+    </div>
+
+    <footer class="w-full flex justify-content-center gap-2 mt-4">
+      <pv-button label="Accept" @click="updateImg" />
+      <pv-button label="Cancel" @click="closeDialog" />
+    </footer>
   </pv-modal>
 </template>
 
 <script>
-import {DeveloperEntity} from "../../../shared/models/developer.model.js";
-import {HomeService} from "../../../../public/services/home.service.js";
+import { DeveloperEntity } from "../../../shared/models/developer.model.js";
+import { HomeService } from "../../../../public/services/home.service.js";
+import useSupabase from "../../../utils/supabase.js"; // Importar funciones de Supabase
 
 export default {
   name: "developer-page",
@@ -60,26 +86,98 @@ export default {
       mainText: '',
       isEditingCategories: [false, false, false], // Updated to match the number of categories
       categoryTexts: [],
-      categories: ['categories.country', 'categories.phone', 'categories.specialties'], // Ensure specialties is included
+      categories: ['categories.country', 'categories.phone', 'categories.specialties'],
       value: 0,
       homeService: new HomeService(),
       displayDialog: false,
-      newImgUrl: ''
+      newImgUrl: '',
+      previewImage: null, // Para vista previa de la imagen
+      selectedFile: null, // Para almacenar el archivo seleccionado
     };
   },
   methods: {
+    // Método para manejar la selección de archivo de imagen
+    handleFileSelect(event) {
+      const file = event.files[0];
+      if (!file) return;
+
+      this.selectedFile = file;
+
+      // Crear vista previa de la imagen seleccionada
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        this.previewImage = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    },
+
+    // Método para actualizar la imagen
+    async updateImg() {
+      if (this.selectedFile === null) {
+        return; // Si no se seleccionó un archivo, no hacemos nada
+      }
+
+      try {
+        const fileExtension = this.selectedFile.name.split('.').pop().toLowerCase();
+        const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+
+        if (!allowedExtensions.includes(fileExtension)) {
+          throw new Error('Formato de imagen no válido. Use JPG, PNG o GIF');
+        }
+
+        // Nombre del archivo: "profile_[ID_DEV].[extensión]"
+        const filePath = `profiles/profile_developer_${this.developer.id}.${fileExtension}`;
+
+        // Subir archivo a Supabase Storage
+        const { uploadFile, getPublicUrl } = useSupabase();
+        await uploadFile("webmasterprofiles", filePath, this.selectedFile);
+
+        const publicUrl = `${getPublicUrl("webmasterprofiles", filePath)}?t=${Date.now()}`;
+        this.newImgUrl = publicUrl;
+
+        // Actualizar la URL de la imagen en el perfil
+        if (this.newImgUrl) {
+          const updatedInfo = {
+            firstName: this.developer.firstName,
+            lastName: this.developer.lastName,
+            description: this.mainText,
+            country: this.categoryTexts[0],
+            phone: this.categoryTexts[1],
+            specialties: this.categoryTexts[2],
+            profileImgUrl: this.newImgUrl,
+          };
+
+          await this.homeService.updateDevInfo(this.developer.id, updatedInfo);
+          this.displayDialog = false;
+          window.location.reload();
+        }
+      } catch (err) {
+        console.error("Error al actualizar la imagen:", err);
+      }
+    },
+
+    openDialog() {
+      this.displayDialog = true;
+    },
+    closeDialog() {
+      this.displayDialog = false;
+      this.previewImage = null;
+      this.selectedFile = null;
+      this.newImgUrl = "";
+    },
+
     async toggleEditingMain() {
       if (this.isEditingMain) {
         const updatedInfo = {
-          firstName: this.developer.firstName, // Asegúrate de incluir estos valores
-          lastName: this.developer.lastName,  // Asegúrate de incluir estos valores
+          firstName: this.developer.firstName,
+          lastName: this.developer.lastName,
           description: this.mainText,
           country: this.categoryTexts[0],
           phone: this.categoryTexts[1],
           specialties: this.categoryTexts[2],
           profileImgUrl: this.developer.profile_img_url
         };
-        await this.homeService.updateDevInfo(this.developer.user.id, updatedInfo);
+        await this.homeService.updateDevInfo(this.developer.id, updatedInfo);
       }
       this.isEditingMain = !this.isEditingMain;
     },
@@ -87,15 +185,15 @@ export default {
     async toggleEditingCategory(index) {
       if (this.isEditingCategories[index]) {
         const updatedInfo = {
-                  firstName:     this.developer.firstName,    // ¡muy importante!
-                  lastName:      this.developer.lastName,
-                   description:   this.mainText,
-                   country:       this.categoryTexts[0],
-                   phone:         this.categoryTexts[1],
-                   specialties:   this.categoryTexts[4],
-                   profileImgUrl: this.developer.profile_img_url
-             };
-        await this.homeService.updateDevInfo(this.developer.user.id, updatedInfo);
+          firstName: this.developer.firstName,
+          lastName: this.developer.lastName,
+          description: this.mainText,
+          country: this.categoryTexts[0],
+          phone: this.categoryTexts[1],
+          specialties: this.categoryTexts[4],
+          profileImgUrl: this.developer.profile_img_url
+        };
+        await this.homeService.updateDevInfo(this.developer.id, updatedInfo);
 
         // Update the local developer object
         switch (index) {
@@ -111,27 +209,6 @@ export default {
         }
       }
       this.isEditingCategories[index] = !this.isEditingCategories[index];
-    },
-
-    updateImg() {
-      if (this.newImgUrl === '') {
-        return;
-      }
-      let img = {
-        profile_img_url: this.newImgUrl
-      };
-      this.newImgUrl = '';
-      this.homeService.updateDevProfileImg(this.developer.id, img)
-          .then(() => {
-            this.displayDialog = false;
-            window.location.reload();
-          });
-    },
-    openDialog() {
-      this.displayDialog = true;
-    },
-    closeDialog() {
-      this.displayDialog = false;
     }
   },
   props: {
@@ -144,8 +221,9 @@ export default {
     this.categoryTexts = [
       this.developer.country,
       this.developer.phone,
-      this.developer.specialties // Ensure specialties is included
+      this.developer.specialties
     ];
+    console.log(this.developer, "developer");
     this.mainText = this.developer.description;
   }
 };

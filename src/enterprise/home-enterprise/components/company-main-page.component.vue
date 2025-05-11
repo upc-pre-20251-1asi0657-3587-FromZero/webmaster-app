@@ -110,7 +110,7 @@ export default {
           }
 
           // Nombre del archivo: "profile_[ID_EMPRESA].[extensión]"
-          const filePath = `profiles/profile_${enterpriseId.value}.${fileExtension}`;
+          const filePath = `profiles/profile_enterprise_${enterpriseId.value}.${fileExtension}`;
 
           // Opción 1: Usando tu función uploadFile existente
           await uploadFile("webmasterprofiles", filePath, selectedFile.value);
