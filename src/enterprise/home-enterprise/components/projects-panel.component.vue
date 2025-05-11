@@ -24,35 +24,29 @@ export default {
     };
   },
   methods: {
-    async openPosition(position, started, candidates, projectId) {
+    async openPosition(position, started, candidatesList, projectId) {
       if (!started) {
         this.myProject = projectId;
         this.position = position;
         this.visible = true;
 
-        for (let candidate of candidates) {
-          this.homeService.getApplicantInfoById(candidate).then((response) => {
-            const applicantData = response.data;
-            const applicant = new ApplicantEntity(
-                applicantData.developer_id,
-                applicantData.firstName,
-                applicantData.lastName,
-                applicantData.description,
-                applicantData.profile_img_url
-            );
-            this.applicantsList.push(applicant);
+        this.applicantsList = candidatesList.map(candidate => {
+          return new ApplicantEntity(
+              candidate.user.id, // ID del developer
+              candidate.firstName,
+              candidate.lastName,
+              candidate.description,
+              candidate.profileImgUrl
+          );
           });
-        }
       } else {
         this.$router.push('/deliverables-list');
       }
     },
 
     chooseApplicant(applicant) {
-      let applicant_id = applicant.developer_id
-      console.log(applicant);
       this.visible = false;
-      this.$emit("chooseDeveloper", {numberApplicant: applicant_id , numberProjectId: this.myProject})
+      this.$emit("chooseDeveloper", {Applicant: applicant.developer_id , numberProjectId: this.myProject})
     },
 
     goToDeliverablesList(projectId) {
@@ -113,7 +107,7 @@ export default {
           <p class="subtitle tipo-proyecto">
             {{ projectStateMap[project.stateProject] }}
           </p>
-          <p class="postulantes"  v-if="!project.started" @click="openPosition('center', project.started, project.applicants_id, project.project_ID)">{{ $t('projects-panel-enterprise-part2') }}: {{project.applicants_id.length}}</p>
+          <p class="postulantes"  v-if="!project.started" @click="openPosition('center', project.started, project.applicantsList, project.project_ID)">{{ $t('projects-panel-enterprise-part2') }}: {{project.applicantsList.length}}</p>
           <pv-progressbar v-else :value="project.projectProgressBar"></pv-progressbar>
         </div>
       </template>
