@@ -40,14 +40,14 @@ export default {
       if ( isEditingMain.value ) {
         const updatedInfo = {
           // Aquí definimos exactamente el payload que espera el endpoint PUT /enterprises/{id}
-          enterpriseName:    props.company.enterprise_name,  // si quieres permitir editarlo
-          description:       mainText.value,
-          country:           categoryTexts.value[0],
-          RUC:               categoryTexts.value[1],
-          phone:             categoryTexts.value[2],
-          website:           categoryTexts.value[3],
-          profileImgUrl:     props.company.profile_img_url,   // o profileImgUrl
-          sector:            categoryTexts.value[4]
+          enterpriseName: props.company.enterprise_name,
+          description:    mainText.value,
+          country:        categoryTexts.value[0],
+          ruc:            categoryTexts.value[1],
+          phone:          categoryTexts.value[2],
+          website:        categoryTexts.value[3],
+          profileImgUrl:  props.company.profile_img_url,
+          sector:         categoryTexts.value[4]
         };
 
         try {
