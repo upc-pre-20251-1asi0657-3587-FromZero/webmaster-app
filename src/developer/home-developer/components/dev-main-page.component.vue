@@ -18,7 +18,9 @@
             const previewImage = ref(null);
             const selectedFile = ref(null);
 
-            const developerId = computed(() => props.developer.id);
+            console.log(props.developer, "props.developer");
+
+            const developerId = computed(() => props.developer.user.id);
 
             const isEditingMain = ref(false);
             const mainText = ref(props.developer.description || "");
@@ -40,7 +42,7 @@
                   country: categoryTexts.value[0],
                   phone: categoryTexts.value[1],
                   specialties: categoryTexts.value[2],
-                  profileImgUrl: props.developer.profileImgUrl
+                  profileImgUrl: props.developer.profile_img_url
                 };
 
                 try {
@@ -61,7 +63,7 @@
                   country: categoryTexts.value[0],
                   phone: categoryTexts.value[1],
                   specialties: categoryTexts.value[2],
-                  profileImgUrl: props.developer.profileImgUrl
+                  profileImgUrl: props.developer.profile_img_url
                 };
 
                 try {
@@ -157,7 +159,7 @@
           <pv-card aria-label="Developer Information" class="flex col gap-1">
             <template #title>
               <pv-avatar
-                :image="developer.profileImgUrl"
+                :image="developer.profile_img_url"
                 class="mr-2"
                 size="xlarge"
                 shape="circle"
