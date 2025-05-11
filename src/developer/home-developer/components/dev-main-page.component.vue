@@ -77,6 +77,7 @@
 import { DeveloperEntity } from "../../../shared/models/developer.model.js";
 import { HomeService } from "../../../../public/services/home.service.js";
 import useSupabase from "../../../utils/supabase.js"; // Importar funciones de Supabase
+//Test
 
 export default {
   name: "developer-page",
