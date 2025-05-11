@@ -67,7 +67,7 @@ export default {
           enterpriseName: props.company.enterprise_name,
           description:    mainText.value,
           country:        categoryTexts.value[0],
-          RUC:            categoryTexts.value[1],
+          ruc:            categoryTexts.value[1],
           phone:          categoryTexts.value[2],
           website:        categoryTexts.value[3],
           profileImgUrl:  props.company.profile_img_url,

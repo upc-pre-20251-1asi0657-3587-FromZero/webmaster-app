@@ -104,6 +104,7 @@ export default {
     <template #title> <p  style="color: #3554BC">{{ $t('projects-panel-enterprise-part1') }}</p></template>
     <template #content v-if="projects">
       <hr>
+      <div v-if="projects.length === 0" class="p-m-3">No hay proyectos aún.</div>
       <template class="project-list" v-for="project in projects">
         <div class="project">
           <h4 @click="handleProjectClick(project.project_ID, project.stateProject)">
