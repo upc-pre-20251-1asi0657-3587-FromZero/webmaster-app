@@ -24,8 +24,8 @@ export default {
     };
   },
   methods: {
-    async openPosition(position, started, candidatesList, projectId) {
-      if (!started) {
+    async openPosition(position, state, candidatesList, projectId) {
+      if (state == 'LOOKING_FOR_DEVELOPERS') {
         this.myProject = projectId;
         this.position = position;
         this.visible = true;
@@ -71,7 +71,7 @@ export default {
 
     //Metodo para manejar el acceso a la lista de entregables
     handleProjectClick(projectID, state) {
-      if (state === 2) { // Solo si el estado es "IN_PROCESS" (valor 2)
+      if (state === "IN_PROCESS") { // Solo si el estado es "IN_PROCESS" (valor 2)
         this.goToDeliverablesList(projectID);
       }
     },
@@ -107,7 +107,7 @@ export default {
           <p class="subtitle tipo-proyecto">
             {{ projectStateMap[project.stateProject] }}
           </p>
-          <p class="postulantes"  v-if="!project.started" @click="openPosition('center', project.started, project.applicantsList, project.project_ID)">{{ $t('projects-panel-enterprise-part2') }}: {{project.applicantsList.length}}</p>
+          <p class="postulantes"  v-if="state === 'LOOKING_FOR_DEVELOPERS'" @click="openPosition('center', project.state, project.applicantsList, project.project_ID)">{{ $t('projects-panel-enterprise-part2') }}: {{project.applicantsList.length}}</p>
           <pv-progressbar v-else :value="project.projectProgressBar"></pv-progressbar>
         </div>
       </template>
