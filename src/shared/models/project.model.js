@@ -11,7 +11,7 @@ export class ProjectEntity {
                     budgetDescription,
                     methodologies = [],
                     enterprise_id,
-                    applicants_id = [],
+                    applicantsList = [],
                     developer_id = null,
                     stateProject,
                     projectProgressBar = 0,
@@ -29,7 +29,7 @@ export class ProjectEntity {
         this.budgetDescription = budgetDescription;
         this.methodologies = methodologies;
         this.enterprise_id = enterprise_id;
-        this.applicants_id = applicants_id;
+        this.applicantsList = applicantsList;
         this.developer_id = developer_id;
         this.stateProject = stateProject;
         this.projectProgressBar = projectProgressBar;

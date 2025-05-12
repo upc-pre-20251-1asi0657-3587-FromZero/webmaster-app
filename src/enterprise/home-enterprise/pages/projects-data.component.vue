@@ -28,7 +28,7 @@ export default {
           projectProgressBar: p.progress,
           stateProject:       p.state,
           enterprise_id:      p.enterpriseId,
-          applicants_id:      p.applicants   || [],
+          applicantsList:     p.candidatesList   || [],
           developer_id:       p.developerId  || null,
           started:            p.started
         }))
@@ -40,9 +40,9 @@ export default {
 
     onMounted(loadProjects);
 
-    const applicantHandler = async ({ numberProjectId, numberApplicant }) => {
+    const applicantHandler = async ({ numberProjectId, Applicant }) => {
       try {
-        await projectService.assignDeveloper(numberProjectId, { developer_id: numberApplicant });
+        await projectService.assignDeveloper(numberProjectId, Applicant );
         await loadProjects();
       } catch (err) {
         console.error("Error asignando developer:", err.response?.data || err);
