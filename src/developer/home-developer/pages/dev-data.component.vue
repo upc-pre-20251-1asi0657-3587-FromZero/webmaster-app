@@ -15,19 +15,35 @@ export default {
       developerId: null
     }
   },
-  created(){
-    let id=localStorage.getItem('user id');
-    this.homeService.getDevProfileByUserId(id).then((response) => {
-      this.developer = response.data;
-      this.developerId = response.data.developer_id;
-      localStorage.setItem("developer id", this.developerId);
-      console.log('a2 ',this.developer);
-      this.createUser()
-    });
+  created() {
+    const userId = localStorage.getItem('user id');
+       this.homeService.getDevProfileByUserId(userId)
+       .then(({ data }) => {
+            // 1) Guarda el raw para usar el developer.id
+                 this.developer = data;
+             // 2) El ID de usuario que necesita el PUT está en data.userId
+                 localStorage.setItem('developer id', data.id);
+             // 3) Crea tu entidad con el developer.id (PK) y el userId correcto
+         this.myDev = new DeveloperEntity(
+             data.id,            // developer PK
+             data.firstName,      // Asegúrate de que este valor no sea null
+             data.lastName,       // Asegúrate de que este valor no sea null
+             data.description,
+             data.country,
+             data.phone,
+             data.completed_projects,
+             data.specialties,
+             data.profileImgUrl,
+             {
+               id: data.userId,
+               mail: data.email
+             }
+         );
+           });
 
   },
-  methods:{
-    createUser(){
+  methods: {
+    /*createUser() {
       return this.myDev = new DeveloperEntity(
           this.developer.user_id,
           this.developer.firstName,
@@ -40,7 +56,7 @@ export default {
           this.developer.profile_img_url,
           this.developer.user
       );
-    }
+    }*/
   }
 }
 </script>

@@ -8,7 +8,8 @@ export default {
     return {
       showButtons: false,
       showBlurEffect: false,
-      projectService: new ProjectService()
+      projectService: new ProjectService(),
+      developerId: localStorage.getItem("user id"),
     };
   },
   props: {
@@ -17,12 +18,17 @@ export default {
       required: true
     }
   },
+  computed: {
+    hasApplied() {
+      return this.project.candidates.some(candidate => candidate.userId === Number(this.developerId));
+    }
+  },
   methods: {
     sendApplicant() {
-      let developer_Id = localStorage.getItem('developer id');
+      let developer_Id = localStorage.getItem('user id');
       let project_Id = localStorage.getItem('project id');
-      let entity = { developer_id: developer_Id };
-      this.projectService.addApplicant(project_Id, entity);
+      // let entity = { developerUserId: developer_Id };
+      this.projectService.addApplicant(project_Id, Number(developer_Id));
     },
     showTemplate() {
       this.showBlurEffect = true;
@@ -61,6 +67,9 @@ export default {
   },
   mounted() {
     this.checkProjectState();
+  },
+  created() {
+    console.log('Project:', this.project);
   }
 };
 
@@ -70,7 +79,7 @@ export default {
   <div class="bg-white w-8 " :class="{ 'blur-effect': this.showBlurEffect }" aria-label="Main Content">
     <pv-splitter style="height: auto" layout="vertical">
       <pv-splitter-panel class="flex align-items-center justify-content-center" style="flex-grow: 1" aria-label="Header Panel">
-        <img src="https://imgur.com/23QQKri.jpg" alt="" class="mr-8" aria-hidden="true">
+        <pv-avatar :image="project.enterpriseUrlImage" class="mr-2 mt-2" size="xlarge" shape="circle" aria-label="Developer Avatar" />
         <h2>{{project.nameProject}}</h2>
         <pv-button label="" text plain class="p-d-none p-d-lg-flex p-jc-center p-ai-center ml-5 justify-content-center" v-if="showButtons" aria-label="Show Buttons">
           <img src="https://imgur.com/yclQG0L.jpg" alt="" aria-hidden="true">
@@ -122,21 +131,6 @@ export default {
       <pv-splitter-panel style="flex-grow: 1" aria-label="Resources and Processes Panel">
         <!-- Segundo Splitter Horizontalmente -->
         <pv-splitter layout="horizontal" aria-label="Splitter for Resources and Processes">
-          <pv-splitter-panel style="display: flex; flex-direction: column;" aria-label="Resources Panel">
-            <h2 class="text-center">{{$t('apply-project-part6')}}</h2>
-            <div class="p-d-flex p-jc-center p-ai-center bg-bluegray-400" style="overflow-x: auto; max-height: 300px;">
-              <div class="p-d-flex p-jc-start p-ai-center icon-container" style="white-space: nowrap; width: 100%; max-width: 25vw;">
-                <i class="pi pi-file text-8xl text-black-alpha-90 pr-3" aria-label="Recurso 1">
-                  <p class="m-0 text-center text-black-alpha-90 text-2xl">Recurso 1</p>
-                </i>
-                <i class="pi pi-file text-8xl text-black-alpha-90 pr-3" aria-label="Recurso 2">
-                  <p class="m-0 text-center text-black-alpha-90 text-2xl">Recurso 2</p>
-                </i>
-                <!-- Agregar más elementos de recurso aquí -->
-              </div>
-            </div>
-          </pv-splitter-panel>
-
           <pv-splitter-panel style="flex-grow: 1" aria-label="Processes Panel">
             <h2 class="text-center">{{$t('apply-project-part7')}}</h2>
             <ol aria-label="Development Processes List">
@@ -159,7 +153,8 @@ export default {
     <div class="d-flex justify-content-center mt-5" aria-label="Postulation Section">
       <div style="text-align: center;">
         <pv-toast></pv-toast>
-        <pv-button @click="showTemplate()" :label="$t('apply-project-part8')" severity="contrast" class="text-3xl my-3" outlined aria-label="Postulation Button"></pv-button>
+        <pv-button v-if="!hasApplied" @click="showTemplate()" :label="$t('apply-project-part8')" severity="contrast" class="text-3xl my-3" outlined aria-label="Postulation Button"></pv-button>
+        <p v-if="hasApplied" class="text-center">Ya te has postulado a este proyecto.</p>
       </div>
     </div>
   </div>

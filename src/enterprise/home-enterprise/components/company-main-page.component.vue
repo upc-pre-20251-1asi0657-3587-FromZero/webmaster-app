@@ -1,9 +1,10 @@
 <script>
-import { inject, ref, computed } from "vue";
+import { ref, computed } from "vue";
 import { HomeService } from "../../../../public/services/home.service.js";
+import useSupabase from "../../../utils/supabase.js"
 
 export default {
-  name: "developer-page",
+  name: "company-main-page",
   props: {
     company: {
       type: Object,
@@ -11,109 +12,155 @@ export default {
     }
   },
   setup(props) {
-    const enterpriseId = inject("enterpriseId"); // ✅ Inyectado desde padre
     const homeService = new HomeService();
+    const { uploadFile, getPublicUrl } = useSupabase();
 
-    // Estado reactivo
+    const previewImage = ref(null);
+    const selectedFile = ref(null);
+
+    // Usar directamente el ID de la empresa desde props
+    const enterpriseId = computed(() => props.company.enterprise_id || props.company.id);
+
+    // Estados de edición
     const isEditingMain = ref(false);
     const mainText = ref(props.company.description || "");
-    const isEditingCategories = ref([false, false, false, false, false, false]);
+    const isEditingCategories = ref([false, false, false, false, false]);
     const categoryTexts = ref([
       props.company.country || "",
       props.company.RUC || "",
       props.company.phone || "",
-      props.company.User?.mail || "",
       props.company.website || "",
       props.company.sector || ""
     ]);
     const displayDialog = ref(false);
     const newImgUrl = ref("");
 
-    // Categorías para labels
-    const categories = [
-      "categories.country",
-      "categories.ruc",
-      "categories.phone",
-      "categories.email",
-      "categories.website",
-      "categories.sector"
-    ];
-
-    // Función para actualizar información general
+    // Editar campo principal (descripción)
     const toggleEditingMain = async () => {
-      if (isEditingMain.value) {
+      if ( isEditingMain.value ) {
         const updatedInfo = {
-          description: mainText.value,
-          country: categoryTexts.value[0],
-          ruc: categoryTexts.value[1],
-          phone: categoryTexts.value[2],
-          website: categoryTexts.value[4],
-          profile_img_url: props.company.profile_img_url,
-          sector: categoryTexts.value[5]
+          // Aquí definimos exactamente el payload que espera el endpoint PUT /enterprises/{id}
+          enterpriseName: props.company.enterprise_name,
+          description:    mainText.value,
+          country:        categoryTexts.value[0],
+          ruc:            categoryTexts.value[1],
+          phone:          categoryTexts.value[2],
+          website:        categoryTexts.value[3],
+          profileImgUrl:  props.company.profile_img_url,
+          sector:         categoryTexts.value[4]
         };
 
         try {
-          await homeService.updateEnterpriseInfo(enterpriseId, updatedInfo);
-        } catch (err) {
+          await homeService.updateEnterpriseInfo( enterpriseId.value, updatedInfo );
+        }
+        catch(err) {
           console.error("Error al actualizar información:", err);
         }
       }
       isEditingMain.value = !isEditingMain.value;
     };
 
-    // Función para editar categoría individual
+    // Editar categoría individual
     const toggleEditingCategory = async (index) => {
-      if (isEditingCategories.value[index]) {
+      if ( isEditingCategories.value[index] ) {
         const updatedInfo = {
-          description: mainText.value,
-          country: categoryTexts.value[0],
-          ruc: categoryTexts.value[1],
-          phone: categoryTexts.value[2],
-          website: categoryTexts.value[4],
-          profile_img_url: props.company.profile_img_url,
-          sector: categoryTexts.value[5]
+          enterpriseName: props.company.enterprise_name,
+          description:    mainText.value,
+          country:        categoryTexts.value[0],
+          ruc:            categoryTexts.value[1],
+          phone:          categoryTexts.value[2],
+          website:        categoryTexts.value[3],
+          profileImgUrl:  props.company.profile_img_url,
+          sector:         categoryTexts.value[4]
         };
 
         try {
-          await homeService.updateEnterpriseInfo(enterpriseId, updatedInfo);
-        } catch (err) {
+          await homeService.updateEnterpriseInfo( enterpriseId.value, updatedInfo );
+        }
+        catch(err) {
           console.error("Error al actualizar categoría:", err);
         }
       }
       isEditingCategories.value[index] = !isEditingCategories.value[index];
     };
 
-    // Función para actualizar imagen
+    const handleFileSelect = (event) => {
+      const file = event.files[0];
+      if (!file) return;
+
+      selectedFile.value = file;
+
+      // Crear vista previa
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        previewImage.value = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    };
+
+    // Actualizar imagen
     const updateImg = async () => {
-      if (!newImgUrl.value) return;
-
-      const imgData = { profile_img_url: newImgUrl.value };
-      newImgUrl.value = "";
-
       try {
-        await homeService.updateEnterpriseProfileImg(enterpriseId, imgData);
-        displayDialog.value = false;
-        window.location.reload(); // O actualiza el estado local si prefieres
+        if (selectedFile.value) {
+          const fileExtension = selectedFile.value.name.split('.').pop().toLowerCase();
+          const allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+
+          if (!allowedExtensions.includes(fileExtension)) {
+            throw new Error('Formato de imagen no válido. Use JPG, PNG o GIF');
+          }
+
+          // Nombre del archivo: "profile_[ID_EMPRESA].[extensión]"
+          const filePath = `profiles/profile_enterprise_${enterpriseId.value}.${fileExtension}`;
+
+          // Opción 1: Usando tu función uploadFile existente
+          await uploadFile("webmasterprofiles", filePath, selectedFile.value);
+
+          const publicUrl = `${getPublicUrl("webmasterprofiles", filePath)}?t=${Date.now()}`;
+          newImgUrl.value = publicUrl;
+        }
+
+        if (newImgUrl.value) {
+          const updatedInfo = {
+            enterpriseName: props.company.enterprise_name,
+            description: mainText.value,
+            country: categoryTexts.value[0],
+            ruc: categoryTexts.value[1],
+            phone: categoryTexts.value[2],
+            website: categoryTexts.value[3],
+            profileImgUrl: newImgUrl.value, // Usar la nueva URL
+            sector: categoryTexts.value[4]
+          };
+
+          await homeService.updateEnterpriseInfo(enterpriseId.value, updatedInfo);
+
+          closeDialog();
+
+          window.location.reload();
+        }
       } catch (err) {
         console.error("Error al actualizar imagen:", err);
       }
     };
 
-    // Funciones para el diálogo
     const openDialog = () => (displayDialog.value = true);
-    const closeDialog = () => (displayDialog.value = false);
-
+    const closeDialog = () => {
+      displayDialog.value = false;
+      previewImage.value = null;
+      selectedFile.value = null;
+      newImgUrl.value = "";
+    };
     return {
       isEditingMain,
       mainText,
       isEditingCategories,
       categoryTexts,
-      categories,
       displayDialog,
       newImgUrl,
+      previewImage,
       toggleEditingMain,
       toggleEditingCategory,
       updateImg,
+      handleFileSelect,
       openDialog,
       closeDialog
     };
@@ -122,7 +169,7 @@ export default {
 </script>
 
 <template>
-  <pv-card aria-label="Company Information">
+  <pv-card aria-label="Company Information" class="flex col gap-1">
     <template #title>
       <pv-avatar
           :image="company.profile_img_url"
@@ -139,75 +186,103 @@ export default {
     <template #content>
       <hr aria-label="Separator Line" />
       <div class="subtitle" aria-label="Summary">{{ $t('company-main-page-part1') }}</div>
-
-      <!-- Campo principal (descripción) -->
-      <div class="editable-container" aria-label="Main Text Container">
-        <span v-if="!isEditingMain" class="editable-text" aria-label="Main Text">{{ mainText }}</span>
+      
+      <!-- Descripción editable -->
+      <div class="editable-container">
+        <span v-if="!isEditingMain" class="editable-text">{{ mainText }}</span>
         <pv-textarea
             v-else
             v-model="mainText"
             auto-resize
             class="editable-input"
-            aria-label="Main Text Input"
         />
         <pv-button
             @click="toggleEditingMain"
             icon="pi pi-pencil"
-            class="p-button-rounded p-button-text edit-button"
+            class="edit-button"
             v-if="!isEditingMain"
-            aria-label="Edit Main Text Button"
         />
         <pv-button
             @click="toggleEditingMain"
             icon="pi pi-check"
-            class="p-button-rounded p-button-text edit-button"
+            class="edit-button"
             v-else
-            aria-label="Confirm Main Text Button"
         />
       </div>
 
-      <!-- Categorías dinámicas -->
-      <template v-for="(category, index) in categories" :key="index">
-        <hr :aria-label="`Separator Line ${index}`" v-if="index !== 0" />
-        <div class="editable-container secondary" aria-label="Category Container">
-          <div class="subtitle" aria-label="Category Title">{{ $t(category) }}</div>
-          <span v-if="!isEditingCategories[index]" class="editable-text" aria-label="Category Text">{{ categoryTexts[index] }}</span>
-          <input
-              v-else
-              v-model="categoryTexts[index]"
-              type="text"
-              class="editable-input"
-              aria-label="Category Text Input"
-          />
-          <pv-button
-              @click="toggleEditingCategory(index)"
-              icon="pi pi-pencil"
-              class="p-button-rounded p-button-text edit-button"
-              v-if="!isEditingCategories[index]"
-              aria-label="Edit Category Button"
-          />
-          <pv-button
-              @click="toggleEditingCategory(index)"
-              icon="pi pi-check"
-              class="p-button-rounded p-button-text edit-button"
-              v-else
-              aria-label="Confirm Category Button"
-          />
-        </div>
-      </template>
+      <!-- Campos editables básicos -->
+      <div v-for="(label, idx) in ['country','ruc','phone',/*'email'*/'website','sector']" :key="idx" class="editable-container secondary">
+        <div class="subtitle">{{ $t(`categories.${label}`) }}</div>
+        <span v-if="!isEditingCategories[idx]" class="editable-text">{{ categoryTexts[idx] }}</span>
+        <input
+            v-else
+            v-model="categoryTexts[idx]"
+            type="text"
+            class="editable-input"
+        />
+        <pv-button
+            @click="toggleEditingCategory(idx)"
+            icon="pi pi-pencil"
+            class="edit-button"
+            v-if="!isEditingCategories[idx]"
+        />
+        <pv-button
+            @click="toggleEditingCategory(idx)"
+            icon="pi pi-check"
+            class="edit-button"
+            v-else
+        />
+      </div>
     </template>
   </pv-card>
 
   <!-- Diálogo para cambiar imagen -->
-  <pv-modal v-model:visible="displayDialog" modal header="Update Image URL">
-    <p>Enter the new image URL:</p>
-    <input type="text" v-model="newImgUrl" />
-    <pv-button label="Accept" @click="updateImg" />
-    <pv-button label="Cancel" @click="closeDialog" />
+  <pv-modal v-model:visible="displayDialog" modal header="Update Image URL" style="width: 80%; height: 100%;max-width: 600px; min-width: 300px; max-height: 500px;" class="flex flex-column justify-content-center gap-5">
+    <img
+        v-if="previewImage"
+        :src="previewImage"
+        alt="Vista previa"
+        class="preview-image"
+    />
+    <pv-file-upload
+        mode="basic"
+        name="file"
+        :customUpload="true"
+        @select="handleFileSelect"
+        accept="image/*"
+        chooseLabel="Select Image"
+        class="mb-3"
+    />
+
+    <div class="flex flex-column gap-2">
+      <label for="imageUrl">O ingresar URL:</label>
+      <pv-inputText
+          id="imageUrl"
+          v-model="newImgUrl"
+          placeholder="https://ejemplo.com/imagen.jpg"
+      />
+    </div>
+
+    <footer class="w-full flex justify-content-center gap-2 mt-4">
+      <pv-button label="Accept" @click="updateImg" />
+      <pv-button label="Cancel" @click="closeDialog" />
+    </footer>
   </pv-modal>
 </template>
 
-<style scoped>
+  <style scoped>
+    .editable-container { display:flex; align-items:center; margin: .5rem 0; }
+    .editable-input { flex:1; border-bottom:1px solid #ccc; padding: .25rem; }
+    .edit-button { margin-left:.5rem; max-height: 34px; }
+    .secondary { display:grid; grid-template-columns: 1fr auto; gap: .5rem; align-items:center; }
+    .subtitle { color: #64748b; width: 6rem; }
+
+    .editable-container { display:flex; align-items:center; margin: .5rem 0; }
+    .editable-input { flex:1; border-bottom:1px solid #ccc; padding: .25rem; }
+    .edit-button { margin-left:.5rem; }
+    .secondary { display:grid; grid-template-columns: 1fr auto; gap: .5rem; align-items:center; }
+    .subtitle { color: #64748b; width: 6rem; }
+
 
 hr{
   opacity:0.3;
@@ -218,14 +293,15 @@ hr{
     margin-top:2rem;
   }
 }
-
 .p-card {
   width: 30rem;
   min-width: 20rem;
   box-shadow: 0 20px 40px rgb(57, 57, 57);
   margin-top: 4rem;
   max-height: 800px;
+  min-height: 620px;
 }
+
 :deep(.p-card-title) {
   display: flex;
   align-items: center;
@@ -264,6 +340,8 @@ img {
   border: none;
 }
 
+
+
 .editable-input{
   border: none;
   border-bottom: 1px solid black;
@@ -299,5 +377,14 @@ span{
   display:grid;
   grid-template-columns: 10fr 10fr 1fr;
 }
+    .preview-image {
+      max-width: 100%;
+      max-height: 300px;
+      object-fit: contain;
+      border-radius: 8px;
+      margin: 0 auto;
+      display: block;
+      border: 1px solid #ddd;
+    }
 
 </style>

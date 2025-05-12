@@ -17,6 +17,10 @@ export class HomeService {
         return http.get(`/enterprises/${id}`);
     }
 
+    getEnterpriseByUserId(userId) {
+        return http.get(`/enterprises/user/${userId}`);
+    }
+
     getDeveloperList() {
         return http.get('/developers');
     }

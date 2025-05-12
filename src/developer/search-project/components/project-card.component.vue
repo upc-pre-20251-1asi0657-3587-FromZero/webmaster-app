@@ -21,13 +21,24 @@ export default {
   methods: {
     redirectToProfile() {
       localStorage.setItem('enterprise id', this.company.user_id)
-      this.$router.push({name: 'enterprise-profile', params: {id: this.company.user_id}})
+      this.$router.push({
+        name: 'enterprise-profile',
+        params: { id: this.company.user_id },
+        state: { company: this.company }
+      })
     },
 
     redirectToPostulate(){
       localStorage.setItem('project id', this.project.project_ID)
-      this.$router.push({ name: 'postulate-project', params: { project_id: this.project.project_ID } });
+      this.$router.push({
+        name: 'postulate-project',
+        params: { project_id: this.project.project_ID },
+        state: { project: this.project, company: this.company }
+      });
     }
+  },
+  created() {
+    console.log('Company:', this.company);
   }
 }
 
@@ -49,12 +60,13 @@ export default {
           <h3 @click="redirectToPostulate">{{project.nameProject}}</h3>
         </div>
 
-
       </div>
     </template>
     <template #title aria-label="Card Title">Description</template>
     <template #content aria-label="Card Content" >
       <p class="m-0">{{project.descriptionProject}}</p>
+      <h2 >Budget</h2>
+      <P>S/. {{project.budget}}</P>
     </template>
   </pv-card>
 

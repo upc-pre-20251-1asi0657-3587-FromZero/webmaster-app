@@ -14,32 +14,30 @@ export default {
     };
   },
   provide() {
-    // Proporcionamos enterpriseId dinámicamente al árbol de componentes
     return {
-      get enterpriseId() {
-        return this.enterprise?.enterprise_id;
-      }
+      // inyecta el enterpriseId para los hijos (projects-data)
+    enterpriseId: this.enterprise?.id
     };
   },
   async created() {
     try {
       const userId = localStorage.getItem("user id");
-      const response = await this.homeService.getEnterpriseInfoByID(userId);
-
+      // llamamos al endpoint /enterprises/user/{userId}
+      const response = await this.homeService.getEnterpriseByUserId(userId);
       this.enterprise = response.data;
 
-      // Instanciamos CompanyEntity correctamente
+      // construimos la entidad con los nombres de campo que devuelve la API
       this.myCom = new CompanyEntity(
-          this.enterprise.enterprise_id,
-          this.enterprise.enterprise_name,
-          this.enterprise.profile_img_url,
+          this.enterprise.id,
+          this.enterprise.enterpriseName,
+          this.enterprise.profileImgUrl,
           this.enterprise.description,
           this.enterprise.country,
           this.enterprise.ruc,
           this.enterprise.phone,
           this.enterprise.website,
           this.enterprise.sector,
-          this.enterprise.User
+          [] // no viene el objeto User completo, dejamos array vacío
       );
     } catch (err) {
       console.error('Error al cargar los datos de la empresa', err);
@@ -50,6 +48,7 @@ export default {
 
 <template>
   <div v-if="myCom">
-    <CompanyMainPageComponent :company="myCom" />
+    <CompanyMainPageComponent :company="myCom"/>
   </div>
+  <div v-else class="p-m-3">Cargando datos de la empresa…</div>
 </template>

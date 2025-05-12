@@ -14,39 +14,41 @@ export default {
       position: 'center',
       visible: false,
       applicantsList: [],
-      myProject: null
+      myProject: null,
+      projectStateMap: {
+        'LOOKING_FOR_DEVELOPERS' : 'Buscando Desarrolladores',
+        'NOT_STARTED': 'No Iniciado',
+        'IN_PROCESS': 'En Proceso',
+        'COMPLETED': 'Completado'
+      }
     };
   },
   methods: {
-    async openPosition(position, started, candidates, projectId) {
-      if (!started) {
+    async openPosition(position, state, candidatesList, projectId) {
+      if (state == 'LOOKING_FOR_DEVELOPERS') {
         this.myProject = projectId;
         this.position = position;
         this.visible = true;
 
-        for (let candidate of candidates) {
-          this.homeService.getApplicantInfoById(candidate).then((response) => {
-            const applicantData = response.data;
-            const applicant = new ApplicantEntity(
-                applicantData.developer_id,
-                applicantData.firstName,
-                applicantData.lastName,
-                applicantData.description,
-                applicantData.profile_img_url
-            );
-            this.applicantsList.push(applicant);
+        this.applicantsList = candidatesList.map(candidate => {
+          return new ApplicantEntity(
+              candidate.user.id, // ID del developer
+              candidate.firstName,
+              candidate.lastName,
+              candidate.description,
+              candidate.profileImgUrl
+          );
           });
-        }
       } else {
         this.$router.push('/deliverables-list');
       }
     },
 
     chooseApplicant(applicant) {
-      let applicant_id = applicant.developer_id
-      console.log(applicant);
       this.visible = false;
-      this.$emit("chooseDeveloper", {numberApplicant: applicant_id , numberProjectId: this.myProject})
+      this.$emit("chooseDeveloper", {Applicant: applicant.developer_id , numberProjectId: this.myProject})
+
+      window.location.reload();
     },
 
     goToDeliverablesList(projectId) {
@@ -67,7 +69,14 @@ export default {
       if (!newValue) {
         this.applicantsList = []; // Vacía el array cuando el diálogo no es visible
       }
-    }
+    },
+
+    //Metodo para manejar el acceso a la lista de entregables
+    handleProjectClick(projectID, state) {
+      if (state === "IN_PROCESS") { // Solo si el estado es "IN_PROCESS" (valor 2)
+        this.goToDeliverablesList(projectID);
+      }
+    },
   },
   watch: {
     visible(newValue) {
@@ -91,11 +100,16 @@ export default {
     <template #title> <p  style="color: #3554BC">{{ $t('projects-panel-enterprise-part1') }}</p></template>
     <template #content v-if="projects">
       <hr>
+      <div v-if="projects.length === 0" class="p-m-3">No hay proyectos aún.</div>
       <template class="project-list" v-for="project in projects">
         <div class="project">
-          <h4 @click="goToDeliverablesList(project.project_ID)"> {{project.nameProject}}</h4>
-          <p class="subtitle tipo-proyecto">{{project.stateProject}}</p>
-          <p class="postulantes"  v-if="!project.started" @click="openPosition('center', project.started, project.applicants_id, project.project_ID)">{{ $t('projects-panel-enterprise-part2') }}: {{project.applicants_id.length}}</p>
+          <h4 @click="handleProjectClick(project.project_ID, project.stateProject)">
+            {{ project.nameProject }}
+          </h4>
+          <p class="subtitle tipo-proyecto">
+            {{ projectStateMap[project.stateProject] }}
+          </p>
+          <p class="postulantes"  v-if="project.stateProject === 'LOOKING_FOR_DEVELOPERS'" @click="openPosition('center', project.stateProject, project.applicantsList, project.project_ID)">{{ $t('projects-panel-enterprise-part2') }}: {{project.applicantsList.length}}</p>
           <pv-progressbar v-else :value="project.projectProgressBar"></pv-progressbar>
         </div>
       </template>
@@ -104,6 +118,10 @@ export default {
 
   <div class="card">
     <pv-dialog v-model:visible="visible" :header="$t('projects-panel-enterprise-part3')" :style="{ width: '25rem', height: '100vh', display: 'block', overflow:'auto' }" :position="position" :modal="true" :draggable="false">
+      <div v-if="applicantsList.length === 0">
+        Aún no hay aplicantes al proyecto
+      </div>
+
       <template class="applicants-list" v-for="(applicant) in this.applicantsList">
         <div class="project applicant">
           <h4>{{applicant.firstName +" "+applicant.lastName}}</h4>

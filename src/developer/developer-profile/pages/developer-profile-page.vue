@@ -16,10 +16,10 @@ export default {
       projectService: new ProjectService()
     }
   },
-  created(){
+  created() {
     let id = this.$route.params.id;
     console.log(id, "ID");
-    this.homeService.getDevProfileByUserId(id).then((response)=> {
+    this.homeService.getDevProfileByUserId(id).then((response) => {
       this.developerProfile = response.data;
     })
 
@@ -29,7 +29,7 @@ export default {
     });
     console.log(this.developerRepository);
   },
-  methods(){
+  methods() {
 
   },
 }
@@ -43,8 +43,8 @@ export default {
 </template>
 
 <style scoped>
-.main-container{
-  display:flex;
+.main-container {
+  display: flex;
   justify-content: space-evenly;
   flex-wrap: wrap;
   margin-bottom: 6rem;
