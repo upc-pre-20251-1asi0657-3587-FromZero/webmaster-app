@@ -8,13 +8,19 @@ export default {
     return {
       showButtons: false,
       showBlurEffect: false,
-      projectService: new ProjectService()
+      projectService: new ProjectService(),
+      developerId: localStorage.getItem("user id"),
     };
   },
   props: {
     project: {
       type: Object,
       required: true
+    }
+  },
+  computed: {
+    hasApplied() {
+      return this.project.candidates.some(candidate => candidate.userId === Number(this.developerId));
     }
   },
   methods: {
@@ -159,7 +165,8 @@ export default {
     <div class="d-flex justify-content-center mt-5" aria-label="Postulation Section">
       <div style="text-align: center;">
         <pv-toast></pv-toast>
-        <pv-button @click="showTemplate()" :label="$t('apply-project-part8')" severity="contrast" class="text-3xl my-3" outlined aria-label="Postulation Button"></pv-button>
+        <pv-button v-if="!hasApplied" @click="showTemplate()" :label="$t('apply-project-part8')" severity="contrast" class="text-3xl my-3" outlined aria-label="Postulation Button"></pv-button>
+        <p v-if="hasApplied" class="text-center">Ya te has postulado a este proyecto.</p>
       </div>
     </div>
   </div>

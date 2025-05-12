@@ -38,17 +38,18 @@ export default{
         project_ID: project.id,
         nameProject: project.name,
         descriptionProject: project.description,
-        enterprise_id: project.ownerId
+        enterprise_id: project.ownerId,
+        budget: project.budget,
       }));
       this.companyIds = response.map(project => project.ownerId);
       this.companyIds.forEach(companyId => {
         this.homeService.getEnterpriseInfoByID(companyId).then( (response) =>{
-          console.log(response)
+          console.log(response, 'response');
           this.company.push(new CompanyExplorerEntity(
-              response.data.enterprise_id,
-              response.data.enterprise_name,
-              response.data.profile_img_url,
-              response.data.user_id
+              response.data.id,
+              response.data.enterpriseName,
+              response.data.profileImgUrl,
+              response.data.userId,
           ))
         })
       })

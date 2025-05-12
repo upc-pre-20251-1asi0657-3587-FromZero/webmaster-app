@@ -16,6 +16,7 @@ export default {
   created() {
     let project_id = localStorage.getItem('project id');
     this.projectService.getProjectById(project_id).then((response) => {
+      console.log(response, 'response');
       this.projectById = response;
       this.createProject();
       console.log(this.myProject);
@@ -24,18 +25,20 @@ export default {
   methods: {
     createProject() {
       this.myProject = new ProjectEntity({
-        project_ID:       this.projectById.project_ID,
-        nameProject:      this.projectById.nameProject,
-        descriptionProject:this.projectById.descriptionProject,
+        project_ID:       this.projectById.id,
+        nameProject:      this.projectById.name,
+        descriptionProject:this.projectById.description,
 
         languages:  this.projectById.languages .map(l => l.name),
         frameworks: this.projectById.frameworks.map(f => f.name),
+
+        candidates: this.projectById.candidatesList,
 
         budget:             this.projectById.budget,
         budgetDescription:  this.projectById.budgetDescription,
 
         methodologies: [ this.projectById.methodologies ],
-        stateProject: this.projectById.stateProject
+        stateProject: this.projectById.state
       });
     }
   }

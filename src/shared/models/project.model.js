@@ -5,6 +5,7 @@ export class ProjectEntity {
                     type = '',
                     descriptionProject,
                     languages = [],
+                    candidates = [],
                     frameworks = [],
                     budget = 0,
                     budgetDescription,
@@ -22,6 +23,7 @@ export class ProjectEntity {
         this.descriptionProject = descriptionProject;
         this.languages = languages;
         this.frameworks = frameworks;
+        this.candidates = candidates;
         this.budget = budget;
         this.budgetDescription = budgetDescription;
         this.methodologies = methodologies;
