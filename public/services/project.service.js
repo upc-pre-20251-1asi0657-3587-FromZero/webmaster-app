@@ -67,5 +67,5 @@ export class ProjectService {
         return response.data;
     }
 
-    // Los deletes de "applicant" y "developer" ya no existen según el nuevo backend
 }
+

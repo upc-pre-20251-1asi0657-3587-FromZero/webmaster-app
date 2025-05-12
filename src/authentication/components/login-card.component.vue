@@ -138,4 +138,3 @@ export default {
   border-radius: 1.5rem !important;
 }
 </style>
-

@@ -149,7 +149,6 @@ export default {
       selectedFile.value = null;
       newImgUrl.value = "";
     };
-
     return {
       isEditingMain,
       mainText,
@@ -187,7 +186,7 @@ export default {
     <template #content>
       <hr aria-label="Separator Line" />
       <div class="subtitle" aria-label="Summary">{{ $t('company-main-page-part1') }}</div>
-
+      
       <!-- Descripción editable -->
       <div class="editable-container">
         <span v-if="!isEditingMain" class="editable-text">{{ mainText }}</span>
