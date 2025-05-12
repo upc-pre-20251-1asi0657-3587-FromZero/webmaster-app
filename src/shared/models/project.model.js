@@ -15,6 +15,7 @@ export class ProjectEntity {
                     developer_id = null,
                     stateProject,
                     projectProgressBar = 0,
+                    enterpriseUrlImage= '',
                     started
                 } = {}) {
         this.project_ID = project_ID;
@@ -32,6 +33,7 @@ export class ProjectEntity {
         this.developer_id = developer_id;
         this.stateProject = stateProject;
         this.projectProgressBar = projectProgressBar;
+        this.enterpriseUrlImage = enterpriseUrlImage;
         this.started = started
     }
 }

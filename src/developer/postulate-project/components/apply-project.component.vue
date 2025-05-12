@@ -67,6 +67,9 @@ export default {
   },
   mounted() {
     this.checkProjectState();
+  },
+  created() {
+    console.log('Project:', this.project);
   }
 };
 
@@ -76,7 +79,7 @@ export default {
   <div class="bg-white w-8 " :class="{ 'blur-effect': this.showBlurEffect }" aria-label="Main Content">
     <pv-splitter style="height: auto" layout="vertical">
       <pv-splitter-panel class="flex align-items-center justify-content-center" style="flex-grow: 1" aria-label="Header Panel">
-        <img src="https://imgur.com/23QQKri.jpg" alt="" class="mr-8" aria-hidden="true">
+        <img :src="project.enterpriseUrlImage" alt="" class="mr-8 w-2 border-round-3xl" aria-hidden="true">
         <h2>{{project.nameProject}}</h2>
         <pv-button label="" text plain class="p-d-none p-d-lg-flex p-jc-center p-ai-center ml-5 justify-content-center" v-if="showButtons" aria-label="Show Buttons">
           <img src="https://imgur.com/yclQG0L.jpg" alt="" aria-hidden="true">

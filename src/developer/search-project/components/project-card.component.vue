@@ -21,12 +21,20 @@ export default {
   methods: {
     redirectToProfile() {
       localStorage.setItem('enterprise id', this.company.user_id)
-      this.$router.push({name: 'enterprise-profile', params: {id: this.company.user_id}})
+      this.$router.push({
+        name: 'enterprise-profile',
+        params: { id: this.company.user_id },
+        state: { company: this.company }
+      })
     },
 
     redirectToPostulate(){
       localStorage.setItem('project id', this.project.project_ID)
-      this.$router.push({ name: 'postulate-project', params: { project_id: this.project.project_ID } });
+      this.$router.push({
+        name: 'postulate-project',
+        params: { project_id: this.project.project_ID },
+        state: { project: this.project, company: this.company }
+      });
     }
   },
   created() {
