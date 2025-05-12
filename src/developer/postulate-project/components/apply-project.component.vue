@@ -79,7 +79,7 @@ export default {
   <div class="bg-white w-8 " :class="{ 'blur-effect': this.showBlurEffect }" aria-label="Main Content">
     <pv-splitter style="height: auto" layout="vertical">
       <pv-splitter-panel class="flex align-items-center justify-content-center" style="flex-grow: 1" aria-label="Header Panel">
-        <img :src="project.enterpriseUrlImage" alt="" class="mr-8 w-2 border-round-3xl" aria-hidden="true">
+        <pv-avatar :image="project.enterpriseUrlImage" class="mr-2 mt-2" size="xlarge" shape="circle" aria-label="Developer Avatar" />
         <h2>{{project.nameProject}}</h2>
         <pv-button label="" text plain class="p-d-none p-d-lg-flex p-jc-center p-ai-center ml-5 justify-content-center" v-if="showButtons" aria-label="Show Buttons">
           <img src="https://imgur.com/yclQG0L.jpg" alt="" aria-hidden="true">
@@ -131,21 +131,6 @@ export default {
       <pv-splitter-panel style="flex-grow: 1" aria-label="Resources and Processes Panel">
         <!-- Segundo Splitter Horizontalmente -->
         <pv-splitter layout="horizontal" aria-label="Splitter for Resources and Processes">
-          <pv-splitter-panel style="display: flex; flex-direction: column;" aria-label="Resources Panel">
-            <h2 class="text-center">{{$t('apply-project-part6')}}</h2>
-            <div class="p-d-flex p-jc-center p-ai-center bg-bluegray-400" style="overflow-x: auto; max-height: 300px;">
-              <div class="p-d-flex p-jc-start p-ai-center icon-container" style="white-space: nowrap; width: 100%; max-width: 25vw;">
-                <i class="pi pi-file text-8xl text-black-alpha-90 pr-3" aria-label="Recurso 1">
-                  <p class="m-0 text-center text-black-alpha-90 text-2xl">Recurso 1</p>
-                </i>
-                <i class="pi pi-file text-8xl text-black-alpha-90 pr-3" aria-label="Recurso 2">
-                  <p class="m-0 text-center text-black-alpha-90 text-2xl">Recurso 2</p>
-                </i>
-                <!-- Agregar más elementos de recurso aquí -->
-              </div>
-            </div>
-          </pv-splitter-panel>
-
           <pv-splitter-panel style="flex-grow: 1" aria-label="Processes Panel">
             <h2 class="text-center">{{$t('apply-project-part7')}}</h2>
             <ol aria-label="Development Processes List">
