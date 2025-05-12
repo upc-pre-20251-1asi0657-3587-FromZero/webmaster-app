@@ -116,7 +116,8 @@ export default {
 
 <template>
   <div class="bg-white">
-    <div class="mt-5 mx-3">
+    <br>
+    <div class="mx-3">
       <router-link aria-label="go to login" to="/login" class="text-purple-500 text-sm">
         <i class="pi pi-chevron-left" style="font-size: 2rem"></i>
       </router-link>
