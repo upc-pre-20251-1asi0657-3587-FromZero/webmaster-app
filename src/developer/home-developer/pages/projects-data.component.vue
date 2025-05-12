@@ -33,21 +33,21 @@ export default {
   methods: {
     buildProjects() {
       this.myProjects = this.projectsData.map(p => new ProjectEntity({
-        project_ID: p.project_ID,
-        nameProject: p.nameProject,
+        project_ID: p.id,
+        nameProject: p.name,
         type: p.type,
-        descriptionProject: p.descriptionProject,
+        descriptionProject: p.description,
         languages: p.languages,
         frameworks: p.frameworks,
         budget: p.budget,
-        budgetDescription: p.budgetDescription,
+       // budgetDescription: p.budgetDescription || '',
         methodologies: p.methodologies,
-        enterprise_id: p.enterprise_id,
-        applicants_id: p.applicants_id,
-        developer_id: p.developer_id,
-        stateProject: p.stateProject,
-        projectProgressBar: p.projectProgressBar,
-        started: p.started
+        enterprise_id: p.ownerId,
+        applicants_id: p.candidatesList?.map(c => c.id) || [],
+        developer_id: p.developerId,
+        stateProject: p.state,
+        projectProgressBar: p.progress,
+        started: p.started || false //
       }));
 
       console.log('My projects:', this.myProjects);
