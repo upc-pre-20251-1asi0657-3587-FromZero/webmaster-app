@@ -1,5 +1,6 @@
 <script>
-import { useRouter } from 'vue-router';
+import {useRouter} from 'vue-router';
+
 export default {
   name: "projects-panel.component",
   props: {
@@ -14,10 +15,10 @@ export default {
     },
     translateState(state) {
       const stateMap = {
-        LOOKING_FOR_DEVELOPERS:  "Pendiente de inicio",
-        IN_PROCESS:   "En desarrollo",
-        ON_HOLD:      "En pausa",
-        COMPLETED:    "Finalizado"
+        LOOKING_FOR_DEVELOPERS: "Pendiente de inicio",
+        IN_PROCESS: "En desarrollo",
+        ON_HOLD: "En pausa",
+        COMPLETED: "Finalizado"
       };
       return stateMap[state] || "Estado desconocido";
     }
@@ -53,7 +54,7 @@ export default {
               <span><strong>Estado:</strong> {{ translateState(project.stateProject) }}</span>
             </div>
             <div class="progress-section">
-              <pv-progressbar :value="project.projectProgressBar" showValue />
+              <pv-progressbar :value="project.projectProgressBar" showValue/>
             </div>
           </template>
 
@@ -169,6 +170,7 @@ export default {
     margin: 2rem 1rem;
     padding: 1rem;
   }
+
   .project-list {
     grid-template-columns: 1fr;
   }

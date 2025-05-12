@@ -4,14 +4,11 @@ import ProjectsDataComponent from "./projects-data.component.vue";
 
 export default {
   name: "home-page",
-  components: { DevDataComponent, ProjectsDataComponent},
+  components: {DevDataComponent, ProjectsDataComponent},
   data() {
-    return {
-    };
+    return {};
   },
-  methods: {
-
-  },
+  methods: {},
 };
 </script>
 
@@ -23,8 +20,8 @@ export default {
 </template>
 
 <style scoped>
-.main-container{
-  display:flex;
+.main-container {
+  display: flex;
   justify-content: space-evenly;
   flex-wrap: wrap;
   margin-bottom: 6rem;
