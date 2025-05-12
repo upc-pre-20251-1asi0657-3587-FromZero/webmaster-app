@@ -15,7 +15,7 @@ export default {
     translateState(state) {
       const stateMap = {
         LOOKING_FOR_DEVELOPERS:  "Pendiente de inicio",
-        IN_PROGRESS:   "En desarrollo",
+        IN_PROCESS:   "En desarrollo",
         ON_HOLD:      "En pausa",
         COMPLETED:    "Finalizado"
       };
