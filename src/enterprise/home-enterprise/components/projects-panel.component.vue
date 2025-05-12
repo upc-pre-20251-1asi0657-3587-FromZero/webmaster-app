@@ -47,6 +47,8 @@ export default {
     chooseApplicant(applicant) {
       this.visible = false;
       this.$emit("chooseDeveloper", {Applicant: applicant.developer_id , numberProjectId: this.myProject})
+
+      window.location.reload();
     },
 
     goToDeliverablesList(projectId) {
@@ -107,7 +109,7 @@ export default {
           <p class="subtitle tipo-proyecto">
             {{ projectStateMap[project.stateProject] }}
           </p>
-          <p class="postulantes"  v-if="state === 'LOOKING_FOR_DEVELOPERS'" @click="openPosition('center', project.state, project.applicantsList, project.project_ID)">{{ $t('projects-panel-enterprise-part2') }}: {{project.applicantsList.length}}</p>
+          <p class="postulantes"  v-if="project.stateProject === 'LOOKING_FOR_DEVELOPERS'" @click="openPosition('center', project.stateProject, project.applicantsList, project.project_ID)">{{ $t('projects-panel-enterprise-part2') }}: {{project.applicantsList.length}}</p>
           <pv-progressbar v-else :value="project.projectProgressBar"></pv-progressbar>
         </div>
       </template>
