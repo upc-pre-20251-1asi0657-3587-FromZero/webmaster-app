@@ -1,9 +1,8 @@
-
-<script >
+<script>
 export default {
-  name:'LoginCard',
-  props:{
-    errorMessage:{
+  name: 'LoginCard',
+  props: {
+    errorMessage: {
       type: String,
       default: ''
     }
@@ -12,6 +11,7 @@ export default {
     return {
       Mail: '',
       Password: '',
+      captchaVerified: false,
       errors: {
         Mail: '',
         Password: ''
@@ -36,24 +36,50 @@ export default {
         this.errors.Password = 'La contraseña es obligatoria.';
         isValid = false;
       } else if (this.Password.length < 8) {
-        this.errors.Password = 'La contraseña debe tener al menos 8 caracteres.';
+        this.errors.Password = 'Mínimo 8 caracteres.';
         isValid = false;
       } else {
         this.errors.Password = '';
       }
 
+      if (!this.captchaVerified) {
+        alert('Por favor, completa el CAPTCHA.');
+        isValid = false;
+      }
+
       return isValid;
+    },
+    onCaptchaSuccess(token) {
+      this.captchaVerified = true;
+      // Usar token para validar en el back para el prox sprint
     },
     login() {
       if (this.validateFields()) {
-        this.$emit('login', {Mail: this.Mail, Password: this.Password});
+        this.$emit('login', { Mail: this.Mail, Password: this.Password });
       }
     }
+  },
+  mounted() {
+    const tryRenderCaptcha = () => {
+      if (window.hcaptcha && document.getElementById('hcaptcha-container')) {
+        window.hcaptcha.render('hcaptcha-container', {
+          sitekey: '0c882c5c-e8c8-4d82-b9dc-5adcddbaa1fe',
+          callback: this.onCaptchaSuccess
+        });
+      } else {
+        setTimeout(tryRenderCaptcha, 300);
+      }
+    };
+
+    tryRenderCaptcha();
   }
+
+
 };
 </script>
 
 <template>
+
   <div class="bg-white">
     <br>
     <div class="mx-3 bg-white">
@@ -90,6 +116,10 @@ export default {
               />
               <p v-if="errors.Password" class="text-red-500 text-sm">{{ errors.Password }}</p>
             </div>
+
+            <!-- Captcha -->
+            <div id="hcaptcha-container" class="h-captcha"></div>
+
             <p v-if="errorMessage" class="text-red-500 text-sm">{{ errorMessage }}</p>
             <pv-button
                 aria-label="Login button"

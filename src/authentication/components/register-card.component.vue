@@ -47,7 +47,7 @@ export default {
       if (!this.password) {
         this.errors.password = "La contraseña es obligatoria.";
       } else if (this.password.length < 8) {
-        this.errors.password = "La contraseña debe tener al menos 8 caracteres.";
+        this.errors.password = "Mínimo 8 caracteres.";
       }
 
       if (!this.selectedRole) {
@@ -116,8 +116,7 @@ export default {
 
 <template>
   <div class="bg-white">
-    <br>
-    <div class="mx-3">
+    <div class="mt-5 mx-3">
       <router-link aria-label="go to login" to="/login" class="text-purple-500 text-sm">
         <i class="pi pi-chevron-left" style="font-size: 2rem"></i>
       </router-link>

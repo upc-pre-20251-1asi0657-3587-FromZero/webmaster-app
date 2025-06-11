@@ -9,7 +9,13 @@ import SearchDeveloperList from "../enterprise/search-developer/pages/search-dev
 import ToolbarEnterpriseComponent from "../public/components/toolbar-enterprise.component.vue";
 import FooterWebstormComponent from "../public/components/footer-webstorm.component.vue";
 import HomePage from "../enterprise/home-enterprise/pages/home-page.component.vue";
+
+
+
 import MessagePage from "../shared/components/message-form.component.vue";
+import ChatPage from "../shared/components/chat-component.vue";
+
+
 import LoginComponent from "../authentication/pages/login.component.vue";
 import DeveloperProfilePage from "../developer/developer-profile/pages/developer-profile-page.vue";
 import CreateProject from "../enterprise/create-project/pages/create-project-page.component.vue";
@@ -59,9 +65,9 @@ const router = createRouter({
             component:  MainPage ,
             children: [
                 {
-                  path: '/main/developers/:id',
-                  component:HomePageDeveloper,
-                  name: 'main-developer'
+                    path: '/main/developers/:id',
+                    component:HomePageDeveloper,
+                    name: 'main-developer'
                 },
                 {
                     path: '/main/enterprises/:id',
@@ -82,10 +88,19 @@ const router = createRouter({
                     name: 'search-developer',
                     component: SearchDeveloperList
                 },
+                // {
+                //
+                //     path: '/message',
+                //     name: 'message-page',
+                //     component: MessagePage
+                //
+                // },
                 {
+                    // name es irrelevante
                     path: '/message',
-                    name: 'message-page',
-                    component: MessagePage
+                    name: 'chat-page',
+                    component: ChatPage
+
                 },
                 {
                     path: '/create-project',
@@ -98,14 +113,14 @@ const router = createRouter({
                     component: DeliverableList
                 },
                 {
-                    path: '/projects/developers/:projectId/Deliverables',
+                    path: '/projects/developers/:projectId/deliverables',
                     name: 'deliverables-list-developer',
                     component:DeliverablesListDeveloper
                 },
                 {
-                  path:'/projects/:projectId/Deliverables/:deliverableId',
-                  name: 'deliverable-edit',
-                  component:DeliverablesDetailsCard
+                    path:'/projects/:projectId/Deliverables/:deliverableId',
+                    name: 'deliverable-edit',
+                    component:DeliverablesDetailsCard
                 },
                 {
                     path:'/projects/:projectId/Deliverables/:deliverableId/review',
@@ -123,7 +138,7 @@ const router = createRouter({
                     component: RejectedDeliverable
                 },
                 {
-                    path:'/projects/:projectId/Deliverables/:deliverableId/Create',
+                    path:'/projects/developers/:projectId/deliverables/:deliverableId/create',
                     name:'create-deliverable',
                     component:CreateDeliverable
                 },

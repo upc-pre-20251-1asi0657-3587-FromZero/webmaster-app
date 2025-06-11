@@ -20,9 +20,9 @@ export default {
     goToSendDeliverable() {
       const projectId = this.deliverable.projectID;
       const deliverableId = this.deliverable.deliverable_id;
-      this.$router.push(`/Projects/${projectId}/Deliverables/${deliverableId}/Create`);
+      this.$router.push(`/projects/developers/${projectId}/deliverables/${deliverableId}/create`);
     }
-  }
+  },
 };
 </script>
 
@@ -67,7 +67,7 @@ export default {
                 <br>
                 {{ $t('approved') }}
               </span>
-              <span v-else-if="deliverable.state === 'En espera de revisión'" >
+              <span v-else-if="deliverable.state === 'WAITING'" >
                 <br>{{ $t('pending') }}
               </span>
               <span v-else-if="deliverable.state === 'Rechazado'">
