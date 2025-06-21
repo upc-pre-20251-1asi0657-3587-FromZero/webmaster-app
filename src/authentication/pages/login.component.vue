@@ -29,7 +29,6 @@ export default {
       localStorage.setItem('token', tokenJSON);
     },
     async handleLogin(userData) {
-      console.log("hola", userData);
       this.user = userData.Mail;
       this.password = userData.Password;
 
