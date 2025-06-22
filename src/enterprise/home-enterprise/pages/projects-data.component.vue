@@ -40,16 +40,8 @@ export default {
 
     onMounted(loadProjects);
 
-    const applicantHandler = async ({ numberProjectId, Applicant }) => {
-      try {
-        await projectService.assignDeveloper(numberProjectId, Applicant );
-        await loadProjects();
-      } catch (err) {
-        console.error("Error asignando developer:", err.response?.data || err);
-      }
-    };
 
-    return { myProjects, applicantHandler };
+    return { myProjects };
   }
 };
 </script>
@@ -58,7 +50,6 @@ export default {
   <div v-if="myProjects">
     <ProjectsPanelComponent
         :projects="myProjects"
-        @chooseDeveloper="applicantHandler"
     />
   </div>
 </template>

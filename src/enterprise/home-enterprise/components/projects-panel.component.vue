@@ -3,6 +3,7 @@ import { useRouter } from 'vue-router';
 import { AuthService } from "../../../../public/services/auth.service.js";
 import { HomeService } from "../../../../public/services/home.service.js";
 import { ApplicantEntity } from "../../../shared/models/applicant.model.js";
+import {CandidatesService} from "../../../../public/services/candidates.service.js";
 
 export default {
   name: "projects-panel.component",
@@ -11,12 +12,13 @@ export default {
   data() {
     return {
       homeService: new HomeService(),
+      candidatesService: new CandidatesService(),
       position: 'center',
       visible: false,
       applicantsList: [],
       myProject: null,
       projectStateMap: {
-        'LOOKING_FOR_DEVELOPERS' : 'Buscando Desarrolladores',
+        'LOOKING_FOR_DEVELOPERS': 'Buscando Desarrolladores',
         'NOT_STARTED': 'No Iniciado',
         'IN_PROCESS': 'En Proceso',
         'COMPLETED': 'Completado'
@@ -24,31 +26,75 @@ export default {
     };
   },
   methods: {
-    async openPosition(position, state, candidatesList, projectId) {
-      if (state == 'LOOKING_FOR_DEVELOPERS') {
+    //revisar si se queda por rendimiento. Es de O(n)
+    async countApplicantsForProjects() {
+      for (const project of this.projects) {
+        if (project.stateProject === 'LOOKING_FOR_DEVELOPERS') {
+          try {
+            const candidates = await this.candidatesService.getAllCandidatesByProjectId(project.project_ID);
+            project.applicantsCount = candidates.length;
+          } catch (error) {
+            console.error(`Error al contar aplicantes del proyecto ${project.project_ID}`, error);
+            project.applicantsCount = 0;
+          }
+        }
+      }
+    },
+    async openPosition(position, state, projectId) {
+      if (state === 'LOOKING_FOR_DEVELOPERS') {
         this.myProject = projectId;
         this.position = position;
         this.visible = true;
 
-        this.applicantsList = candidatesList.map(candidate => {
-          return new ApplicantEntity(
-              candidate.user.id, // ID del developer
-              candidate.firstName,
-              candidate.lastName,
-              candidate.description,
-              candidate.profileImgUrl
-          );
+        try {
+          const candidates = await this.candidatesService.getAllCandidatesByProjectId(projectId);
+          this.applicantsList = candidates.map(candidate => {
+            return new ApplicantEntity(
+                candidate.developerId, // ID del developer
+                candidate.firstName,
+                candidate.lastName,
+                candidate.description,
+                candidate.profileImgUrl
+            );
           });
+
+
+        } catch (error) {
+          console.error("Error al cargar postulantes:", error);
+          this.applicantsList = [];
+        }
+
       } else {
         this.$router.push('/deliverables-list');
       }
     },
 
-    chooseApplicant(applicant) {
-      this.visible = false;
-      this.$emit("chooseDeveloper", {Applicant: applicant.developer_id , numberProjectId: this.myProject})
+    async chooseApplicant(applicant) {
 
-      window.location.reload();
+      console.log("candidato: ", {
+        developer_id: applicant.developer_id,
+        project_id: this.myProject
+      })
+
+      try {
+        await this.candidatesService.selectCandidate(this.myProject, applicant.developer_id);
+
+        this.visible = false;
+
+
+        const project = this.projects.find(p => p.project_ID === this.myProject);
+        if (project) {
+          project.stateProject = 'IN_PROCESS';
+          project.applicantsCount = 0;
+        }
+
+        this.$emit("chooseDeveloper", {Applicant: applicant.developer_id, numberProjectId: this.myProject});
+
+        console.log("Postulante elegido:", applicant);
+
+      } catch (error) {
+        console.error("Error al elegir postulante:", error);
+      }
     },
 
     goToDeliverablesList(projectId) {
@@ -90,7 +136,8 @@ export default {
     }
   },
   created() {
-
+    this.projects.forEach(p => p.applicantsCount = 0);
+    this.countApplicantsForProjects();
   }
 };
 </script>
@@ -129,9 +176,9 @@ export default {
           <p
               class="postulantes"
               v-if="project.stateProject === 'LOOKING_FOR_DEVELOPERS'"
-              @click.stop="openPosition('center', project.stateProject, project.applicantsList, project.project_ID)"
+              @click.stop="openPosition('center', project.stateProject, project.project_ID)"
           >
-            {{ $t('projects-panel-enterprise-part2') }}: {{ project.applicantsList.length }}
+            {{ $t('projects-panel-enterprise-part2') }}: {{ project.applicantsCount || 0 }}
           </p>
           <pv-progressbar v-else :value="project.projectProgressBar"/>
         </div>
@@ -139,20 +186,26 @@ export default {
     </template>
   </pv-card>
   <div class="card">
-    <pv-dialog v-model:visible="visible" :header="$t('projects-panel-enterprise-part3')" :style="{ width: '25rem', height: '100vh', display: 'block', overflow:'auto' }" :position="position" :modal="true" :draggable="false">
+    <pv-dialog v-model:visible="visible" :header="$t('projects-panel-enterprise-part3')"
+               :style="{ width: '25rem', height: '100vh', display: 'block', overflow:'auto' }" :position="position"
+               :modal="true" :draggable="false">
       <div v-if="applicantsList.length === 0">
         Aún no hay aplicantes al proyecto
       </div>
 
       <template class="applicants-list" v-for="(applicant) in this.applicantsList">
         <div class="project applicant">
-          <h4>{{applicant.firstName +" "+applicant.lastName}}</h4>
+          <h4>{{ applicant.firstName + " " + applicant.lastName }}</h4>
           <div class="p-card-title">
-            <pv-avatar :image="applicant.profile_img_url" class="mr-2" size="xlarge" shape="circle" @click="goToDevProfile(applicant.developer_id)" />
-            <pv-rating v-model="applicant.rating" readonly :cancel="false" />
+            <pv-avatar :image="applicant.profile_img_url" class="mr-2" size="xlarge" shape="circle"
+                       @click="goToDevProfile(applicant.developer_id)"/>
+            <pv-rating v-model="applicant.rating" readonly :cancel="false"/>
           </div>
           <span>{{ applicant.description }}</span>
-          <pv-button class="choose-dev" @click="chooseApplicant(applicant)">{{ $t('projects-panel-enterprise-part3') }}</pv-button>
+          <pv-button class="choose-dev" @click="chooseApplicant(applicant)">{{
+              $t('projects-panel-enterprise-part3')
+            }}
+          </pv-button>
         </div>
       </template>
     </pv-dialog>
@@ -161,18 +214,18 @@ export default {
 
 
 <style scoped>
-hr{
-  opacity:0.3;
+hr {
+  opacity: 0.3;
 }
 
 @media (max-width: 799px) {
-  .p-card{
-    margin-top:2rem;
+  .p-card {
+    margin-top: 2rem;
   }
 }
 
-.p-card{
-  width: 30rem ;
+.p-card {
+  width: 30rem;
   min-width: 20rem;
   box-shadow: 0 20px 40px rgb(57, 57, 57);
   margin-top: 4rem;
@@ -181,12 +234,14 @@ hr{
   display: flex;
   flex-direction: column;
 }
+
 :deep(.p-card-title) {
   display: flex;
   align-items: center;
   margin: 20px 20px 0 20px;
   justify-content: center;
 }
+
 :deep(.p-card-content) {
   margin: 0 20px;
   flex-grow: 1;
@@ -203,7 +258,7 @@ hr{
   color: #64748b;
 }
 
-span{
+span {
   max-width: 90%;
 }
 
@@ -215,7 +270,7 @@ span{
   max-height: 680px;
 }
 
-:deep(div.p-card-content){
+:deep(div.p-card-content) {
   display: block;
   justify-content: center;
   overflow: auto;
@@ -223,8 +278,8 @@ span{
   max-height: 680px;
 }
 
-.project{
-  background-color:#D9D9D9;
+.project {
+  background-color: #D9D9D9;
   border-radius: 15px;
   box-shadow: 0 2px 4px rgb(197, 197, 197);
   display: flex;
@@ -234,66 +289,69 @@ span{
   height: 120px;
   transition: transform 0.2s ease;
 }
-.project:hover{
-  cursor:pointer;
+
+.project:hover {
+  cursor: pointer;
   transform: scale(1.04, 1.04);
 }
 
-.tipo-proyecto{
+.tipo-proyecto {
   font-size: 0.8rem;
 }
 
-h4{
+h4 {
   margin: 1px
 }
 
-.postulantes{
+.postulantes {
   margin-top: 10px;
   color: #3554BC
 }
 
-:deep(.p-progressbar){
+:deep(.p-progressbar) {
   width: 70%;
   align-self: center;
   height: 30%;
   margin-top: 5px;
 }
 
-:deep(.p-progressbar .p-progressbar-value){
+:deep(.p-progressbar .p-progressbar-value) {
   background: linear-gradient(to right, #3554BC, #B864F3);
 }
 
 :deep(.p-dialog) {
   border-radius: 12px;
   background-color: #3554BC;
-  display:block;
+  display: block;
 }
 
 :deep(.p-rating .p-rating-item.p-rating-item-active .p-rating-icon) {
   color: gold;
 }
 
-:root(.p-dialog.p-component.p-ripple-disabled){
+:root(.p-dialog.p-component.p-ripple-disabled) {
   display: block !important;
 }
 
-.project.applicant{
+.project.applicant {
   height: 100%;
 }
-.applicants-list{
-  height:100vh;
-}
-:root(.p-dialog-content){
+
+.applicants-list {
   height: 100vh;
 }
 
-:deep(.p-button){
-  background:#3554BC;
-  border:none;
+:root(.p-dialog-content) {
+  height: 100vh;
+}
+
+:deep(.p-button) {
+  background: #3554BC;
+  border: none;
 }
 
 
-.choose-dev:hover{
+.choose-dev:hover {
   background: #B864F3;
 }
 
@@ -303,21 +361,25 @@ h4{
   align-items: center;
   gap: 6.5rem;
 }
+
 .projects-title {
   color: #3554BC;
   font-size: 1.5rem;
   margin: 0;
 }
+
 .new-project-button {
   background-color: #6B46C1; /* morado */
   color: white;
   margin-left: 1px;
 }
+
 .separator {
   border: none;
-  border-top: 1px solid rgba(0,0,0,0.1);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
   margin: 0.5rem 0 1rem;
 }
+
 .project-list {
   display: flex;
   flex-direction: column;
@@ -325,10 +387,11 @@ h4{
   max-height: 68vh;
   overflow-y: auto;
 }
+
 .project {
   background-color: #F0F0F0;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 1rem;
 }
 
