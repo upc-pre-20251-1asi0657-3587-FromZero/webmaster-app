@@ -180,7 +180,7 @@ export default {
           >
             {{ $t('projects-panel-enterprise-part2') }}: {{ project.applicantsCount || 0 }}
           </p>
-          <pv-progressbar v-else :value="project.projectProgressBar"/>
+          <pv-progressbar v-else :value="Math.trunc(project.projectProgressBar)"/>
         </div>
       </div>
     </template>
@@ -312,7 +312,6 @@ h4 {
   width: 70%;
   align-self: center;
   height: 30%;
-  margin-top: 5px;
 }
 
 :deep(.p-progressbar .p-progressbar-value) {

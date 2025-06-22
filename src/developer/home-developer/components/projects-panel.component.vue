@@ -54,7 +54,7 @@ export default {
               <span><strong>Estado:</strong> {{ translateState(project.stateProject) }}</span>
             </div>
             <div class="progress-section">
-              <pv-progressbar :value="project.projectProgressBar" showValue />
+              <pv-progressbar :value="Math.trunc(project.projectProgressBar)" showValue />
             </div>
           </template>
 
