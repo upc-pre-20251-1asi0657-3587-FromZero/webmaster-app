@@ -119,7 +119,7 @@ export default {
 
     //Metodo para manejar el acceso a la lista de entregables
     handleProjectClick(projectID, state) {
-      if (state === "IN_PROCESS") { // Solo si el estado es "IN_PROCESS" (valor 2)
+      if (state === "IN_PROCESS"|| "COMPLETED") { // Solo si el estado es "IN_PROCESS" (valor 2)
         this.goToDeliverablesList(projectID);
       }
     },
