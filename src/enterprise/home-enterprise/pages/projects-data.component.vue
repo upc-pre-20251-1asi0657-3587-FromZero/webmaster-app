@@ -13,24 +13,24 @@ export default {
 
     const loadProjects = async () => {
       const entId = localStorage.getItem("user id");
+      console.log('Cargando proyectos para la empresa con ID:', entId);
       if (!entId) return;
       try {
         let list = await projectService.getProjectByEnterprise(entId);
         // filtramos los type === 0
-        list = list.filter(p => p.type !== 0);
+
         myProjects.value = list.map(p => new ProjectEntity({
           project_ID:         p.id,
           nameProject:        p.name,
           descriptionProject: p.description,
+          stateProject:       p.state,
+          projectProgressBar: p.progress,
+          enterprise_id:      p.enterprise,
+          developer_id:       p.developerId  || null,
+          applicantsList:     p.candidates || [],
           type:               p.type,
           budget:             p.budget,
           methodologies:      p.methodologies,
-          projectProgressBar: p.progress,
-          stateProject:       p.state,
-          enterprise_id:      p.enterpriseId,
-          applicantsList:     p.candidatesList   || [],
-          developer_id:       p.developerId  || null,
-          started:            p.started
         }))
         console.log("Proyectos cargados:", myProjects.value);
       } catch (err) {
