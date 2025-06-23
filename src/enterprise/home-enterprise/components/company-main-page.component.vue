@@ -291,15 +291,17 @@ export default {
             throw new Error('Formato de imagen no válido. Use JPG, PNG o GIF');
           }
 
-          const filePath = `profiles/profile_enterprise_${enterpriseId.value}.${fileExtension}`;
+          const filePath = `profiles/profile_enterprise_${userId}.${fileExtension}`;
           await uploadFile("webmasterprofiles", filePath, selectedFile.value);
           const publicUrl = `${getPublicUrl("webmasterprofiles", filePath)}?t=${Date.now()}`;
           newImgUrl.value = publicUrl;
         }
 
+        let email = localStorage.getItem("user email");
         if (newImgUrl.value) {
           const updatedInfo = {
             enterpriseName: props.company.enterprise_name,
+            enterpriseEmail: email,
             description: mainText.value,
             country: categoryTexts.value[0],
             ruc: categoryTexts.value[1],

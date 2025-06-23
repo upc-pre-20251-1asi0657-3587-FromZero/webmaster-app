@@ -56,10 +56,11 @@ export default {
               data.profileImgUrl,
               {
                 id: data.userId,
-                mail: data.email
+                mail: data.developerEmail
               }
           );
           localStorage.setItem("user name", data.firstName + " " + data.lastName);
+          localStorage.setItem("user email", data.developerEmail);
           console.log("Perfil de desarrollador cargado:", this.myDev);
         })
         .catch((err) => {

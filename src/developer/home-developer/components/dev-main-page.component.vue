@@ -20,7 +20,7 @@ export default {
 
     console.log(props.developer, "props.developer");
 
-    const developerId = computed(() => props.developer.user.id);
+    const developerId = localStorage.getItem("user id");
     const userId = localStorage.getItem("user id");
 
     // Estados de edición
@@ -149,7 +149,7 @@ export default {
         };
 
         try {
-          await homeService.updateDevInfo(developerId.value, updatedInfo);
+          await homeService.updateDevInfo(developerId, updatedInfo);
           // Salir del modo edición después de guardar exitosamente
           isEditingCategories.value = [false, false, false];
           isEditingMain.value = false;
@@ -244,24 +244,26 @@ export default {
             throw new Error("Formato de imagen no válido. Use JPG, PNG o GIF");
           }
 
-          const filePath = `profiles/profile_developer_${developerId.value}.${fileExtension}`;
+          const filePath = `profiles/profile_developer_${developerId}.${fileExtension}`;
           await uploadFile("webmasterprofiles", filePath, selectedFile.value);
           const publicUrl = `${getPublicUrl("webmasterprofiles", filePath)}?t=${Date.now()}`;
           newImgUrl.value = publicUrl;
         }
 
+        let email = localStorage.getItem("user email");
         if (newImgUrl.value) {
           const updatedInfo = {
             firstName: props.developer.firstName,
             lastName: props.developer.lastName,
             description: mainText.value,
+            developerEmail: email,
             country: categoryTexts.value[0],
             phone: categoryTexts.value[1],
             specialties: categoryTexts.value[2],
             profileImgUrl: newImgUrl.value
           };
 
-          await homeService.updateDevInfo(developerId.value, updatedInfo);
+          await homeService.updateDevInfo(developerId, updatedInfo);
           closeDialog();
           window.location.reload();
         }
