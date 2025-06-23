@@ -59,6 +59,7 @@ export default {
                 mail: data.email
               }
           );
+          localStorage.setItem("user name", data.firstName + " " + data.lastName);
           console.log("Perfil de desarrollador cargado:", this.myDev);
         })
         .catch((err) => {

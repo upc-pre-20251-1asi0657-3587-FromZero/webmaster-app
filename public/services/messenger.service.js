@@ -1,6 +1,7 @@
 ﻿import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
 import axios from 'axios';
+import ws from 'ws';
 
 let stompClient = null;
 let currentSubscription = null;
@@ -13,10 +14,11 @@ export default {
                 return;
             }
 
-            const socket = new SockJS('http://localhost:9087/ws');
-            stompClient = Stomp.over(socket);
+            const ws = new WebSocket('ws://localhost:8080/ws');
+            stompClient = Stomp.over(ws);
 
             stompClient.connect({}, () => {
+                console.log('WebSocket conectado');
                 resolve();
             }, (error) => {
                 console.error('WebSocket connection error:', error);
@@ -26,7 +28,7 @@ export default {
         });
     },
 
-    subscribeToTopic(projectId, onMessageReceived) {
+    subscribeToTopic(userId, projectId, userName, onMessageReceived) {
         if (!stompClient) {
             console.error('Socket is not connected');
             return;
@@ -35,11 +37,20 @@ export default {
             currentSubscription.unsubscribe();
         }
 
+        stompClient.subscribe('/user/queue/errors', function (errorMessage) {
+            alert("🚫 Error: " + errorMessage.body);
+            disconnectAndReset();
+        });
+
         currentSubscription = stompClient.subscribe(`/topic/project/${projectId}`, (messageOutput) => {
             onMessageReceived(JSON.parse(messageOutput.body));
         });
 
+        console.log(userId);
+
         stompClient.send(`/app/chat.join.${projectId}`, {}, JSON.stringify({
+            sender: userName,
+            senderId: userId,
             projectId: projectId,
             type: 'JOIN'
         }));
@@ -64,6 +75,8 @@ export default {
             stompClient.send(`/app/chat.sendMessage.${projectId}`, {}, JSON.stringify(chatMessage));
         }
     },
+
+
 
     async loadChatHistory(projectId) {
         try {

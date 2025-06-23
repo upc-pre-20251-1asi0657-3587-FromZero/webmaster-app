@@ -13,6 +13,8 @@ export default {
       newMessage: "",
       isMobileView: false,
       showContactList: true,
+      userId: null,
+      userName: ""
     };
   },
   computed: {
@@ -43,7 +45,9 @@ export default {
 
       // Suscribirse al nuevo topic
       messengerService.subscribeToTopic(
+          this.userId,
           projectId,
+          this.userName,
           (message) => this.onMessageReceived(message)
       );
 
@@ -70,10 +74,10 @@ export default {
       const text = this.newMessage.trim();
       if (!text || !this.currentContact) return;
 
-      const senderId = parseInt(localStorage.getItem("user id"));
+      const senderId = localStorage.getItem("user id");
       const projectId = this.currentContact.projectId;
 
-      messengerService.sendMessage(projectId, this.currentContact.name, senderId, text);
+      messengerService.sendMessage(projectId, this.userName, senderId, text);
 
       this.currentMessages.push({
         id: Date.now(),
@@ -107,16 +111,19 @@ export default {
       this.selectedContactId = null;
     },
   },
+  created() {
+    this.userId = localStorage.getItem("user id");
+    this.userName = localStorage.getItem("user name");
+  },
   async mounted() {
     await this.connectToSocket();
     this.checkMobile();
     window.addEventListener("resize", this.checkMobile);
 
-    const userId = localStorage.getItem("user id");
-    if (userId) {
+    if (this.userId) {
       try {
         const response = await axios.get(
-            `http://localhost:8080/api/v1/chats/user/${userId}`
+            `http://localhost:8080/api/v1/chats/user/${this.userId}`
         );
         this.contacts = response.data;
       } catch (error) {

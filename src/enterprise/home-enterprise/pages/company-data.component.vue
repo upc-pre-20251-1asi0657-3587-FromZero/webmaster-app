@@ -60,6 +60,7 @@ export default {
           this.enterprise.sector
       );
       localStorage.setItem("profile img", this.enterprise.profileImgUrl);
+      localStorage.setItem("user name", this.enterprise.enterpriseName);
     } catch (err) {
       console.error("Error al cargar los datos de la empresa", err);
       this.hasError = true;
