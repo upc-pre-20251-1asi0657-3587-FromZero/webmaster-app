@@ -59,6 +59,9 @@ export default {
       }
     },
     onMessageReceived(message) {
+      const myId = localStorage.getItem("user id");
+      if (message.senderId === myId) return;
+
       this.currentMessages.push({
         id: message.id || Date.now(),
         content: message.content,
@@ -66,7 +69,7 @@ export default {
           hour: "2-digit",
           minute: "2-digit",
         }),
-        isMine: message.senderId === parseInt(localStorage.getItem("user id")),
+        isMine: false,
       });
       this.$nextTick(() => this.scrollToBottom());
     },
@@ -198,33 +201,7 @@ export default {
             :class="['message-bubble', message.isMine ? 'sent' : 'received']"
         >
           <p class="message-content">
-            <template v-if="message.isFile">
-    <span class="file-icon" aria-label="Archivo" title="Archivo">
-    <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="24" height="24" fill="none"
-        stroke="currentColor" stroke-width="2"
-        stroke-linecap="round" stroke-linejoin="round"
-        class="feather feather-file"
-    >
-    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-    <polyline points="14 2 14 8 20 8"/>
-  </svg>
-    </span>
-              <span class="file-name">{{ message.fileName }}</span>
-              <button class="btn-download-icon" @click="downloadFile(message)" aria-label="Descargar archivo"
-                      title="Descargar">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                  <path
-                      d="M.5 9.9v3.6A1.5 1.5 0 0 0 2 15h12a1.5 1.5 0 0 0 1.5-1.5v-3.6a.5.5 0 0 0-1 0v3.6a.5.5 0 0 1-.5.5H2a.5.5 0 0 1-.5-.5v-3.6a.5.5 0 0 0-1 0z"/>
-                  <path
-                      d="M7.5 1.5v7.793l-2.146-2.147-.708.707L8 11.207l3.354-3.354-.708-.707L8.5 9.293V1.5a.5.5 0 0 0-1 0z"/>
-                </svg>
-              </button>
-            </template>
-            <template v-else>
               {{ message.content }}
-            </template>
           </p>
 
 
