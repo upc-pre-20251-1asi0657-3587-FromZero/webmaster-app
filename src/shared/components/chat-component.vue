@@ -1,248 +1,133 @@
-
-
 <script>
-import messengerService from "../../../public/services/messenger.service.js"
+import messengerService from "../../../public/services/messenger.service";
+import axios from "axios";
 
 export default {
   name: "chat-component",
   data() {
     return {
-      // Mensajes del contacto seleccionado actualmente
       currentMessages: [],
-
-      // Para filtrar contactos si se desea
       searchQuery: "",
-
-      // Lista de contactos
       contacts: [],
-
-      // Id del contacto actualmente seleccionado
-      selectedContactId: null, // Inicialmente null, hasta que se cargue el primer contacto
-
-      // Mensaje que estamos escribiendo
+      selectedContactId: null,
       newMessage: "",
-
-      // Nuevas propiedades para la responsividad
       isMobileView: false,
-      showContactList: true, // true: muestra lista de contactos, false: muestra el chat
+      showContactList: true,
     };
   },
   computed: {
-    // Contacto seleccionado como objeto
     currentContact() {
-      return this.contacts.find((c) => c.id === this.selectedContactId);
+      return this.contacts.find((c) => c.projectId === this.selectedContactId);
     },
-
-    // Filtrar contactos a partir de searchQuery
     filteredContacts() {
       if (!this.searchQuery) return this.contacts;
       return this.contacts.filter((c) =>
           c.name.toLowerCase().includes(this.searchQuery.toLowerCase())
       );
-    }
+    },
   },
   methods: {
-    // *** Nuevos métodos para responsividad ***
-    checkMobile() {
-      this.isMobileView = window.innerWidth <= 768; // Define tu breakpoint móvil aquí
-      // Si la vista es móvil y ya hay un contacto seleccionado, oculta la lista de contactos
-      if (this.isMobileView && this.selectedContactId) {
-        this.showContactList = false;
-      } else {
-        this.showContactList = true; // Si no es móvil o no hay contacto, siempre muestra la lista
+    async connectToSocket() {
+      try {
+        await messengerService.connectSocket((error) => {
+          console.error("WebSocket error:", error);
+        });
+      } catch (error) {
+        console.error("Error connecting to WebSocket:", error);
       }
     },
-    selectContact(id) {
-      this.selectedContactId = id;
+    async selectContact(projectId) {
+      if (this.selectedContactId === projectId) return;
+
+      this.selectedContactId = projectId;
+
+      // Suscribirse al nuevo topic
+      messengerService.subscribeToTopic(
+          projectId,
+          (message) => this.onMessageReceived(message)
+      );
+
+      // Cargar historial de mensajes
+      this.currentMessages = await messengerService.loadChatHistory(projectId);
+
       if (this.isMobileView) {
-        this.showContactList = false; // Oculta la lista y muestra el chat en móvil
-      }
-      this.loadMessagesForSelectedContact(); // Llama a una nueva función para cargar mensajes
-    },
-    goBackToContacts() {
-      this.showContactList = true; // Vuelve a mostrar la lista de contactos
-      this.selectedContactId = null; // Opcional: deseleccionar el contacto
-    },
-    // *** Fin de nuevos métodos para responsividad ***
-
-    async downloadFile(message) {
-      try {
-        if (!message.fileUrl) {
-          alert("No se encontró la URL del archivo para descargar.");
-          return;
-        }
-        const fileData = await messengerService.getFileByUrl(message.fileUrl); // Llama a tu nueva función
-
-        const link = document.createElement('a');
-        link.href = fileData.fileContent;
-        link.download = fileData.fileName || 'archivo';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-      } catch (error) {
-        alert("Error al descargar el archivo.");
-        console.error(error);
+        this.showContactList = false;
       }
     },
-    async sendFileMessage(file) {
-      if (!file || !this.currentContact) return;
-
-      const senderId = parseInt(localStorage.getItem('user id'));
-      const recipientId = this.currentContact.userId;
-
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("senderId", senderId);
-      formData.append("recipientId", recipientId);
-      formData.append("emailBody", `El usuario ha enviado un archivo: ${file.name}`);
-
-      try {
-        const result = await messengerService.sendFileMessage({
-          senderId,
-          recipientId,
-          file
-        });
-        console.log("Archivo enviado correctamente:", result);
-
-        // Agrega el mensaje localmente
-        const now = new Date();
-        this.currentMessages.push({
-          id: result.id || Date.now(),
-          content: '', // Opcional, o dejar vacío si tienes fileName
-          time: now.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}),
-          isMine: true,
-          isFile: true,
-          fileName: file.name,
-          fileUrl: result.fileUrl || '#',  // La URL real donde se puede descargar el archivo
-        });
-
-        this.$nextTick(() => {
-          this.scrollToBottom();
-        });
-
-      } catch (error) {
-        console.error("Error al enviar el archivo:", error);
-      }
-    },
-    triggerFileInput() {
-      this.$refs.fileInput.click(); // Simula el clic sobre el input[type=file] oculto
-    },
-    handleFileSelection(event) {
-      console.log('test upload');
-      const file = event.target.files[0];
-      if (file) {
-        console.log("Archivo seleccionado:", file);
-        this.sendFileMessage(file);
-      }
+    onMessageReceived(message) {
+      this.currentMessages.push({
+        id: message.id || Date.now(),
+        content: message.content,
+        time: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        isMine: message.senderId === parseInt(localStorage.getItem("user id")),
+      });
+      this.$nextTick(() => this.scrollToBottom());
     },
     async prepareAndSendMessage() {
       const text = this.newMessage.trim();
-      if (!text || !this.currentContact) return; // No enviar si no hay texto o contacto seleccionado
+      if (!text || !this.currentContact) return;
 
-      const senderId = parseInt(localStorage.getItem('user id'));
-      const recipient = this.currentContact; // Ya tenemos el contacto seleccionado
+      const senderId = parseInt(localStorage.getItem("user id"));
+      const projectId = this.currentContact.projectId;
 
-      const messagePayload = {
-        subject: "string", // Ajusta si tu API espera un asunto real
-        emailBody: text,
-        recipientId: recipient.userId,
-        senderId: senderId
-      };
+      messengerService.sendMessage(projectId, this.currentContact.name, senderId, text);
 
-      console.log("Mensaje a enviar:", messagePayload);
-
-      try {
-        const result = await messengerService.sendMessage(messagePayload);
-        console.log('Mensaje enviado con éxito:', result);
-
-        // Agrega el mensaje a la vista localmente
-        const now = new Date();
-        this.currentMessages.push({
-          id: result.id || Date.now(), // Usa el ID real del mensaje si lo devuelve la API
-          content: text,
-          time: now.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}),
-          isMine: true,
-        });
-
-        this.newMessage = ""; // Limpia el input
-        this.$nextTick(() => {
-          this.scrollToBottom(); // Desplázate al fondo
-        });
-
-      } catch (error) {
-        console.error('Error enviando mensaje:', error);
-        // Aquí puedes mostrar un mensaje de error al usuario
-      }
-    },
-    async loadMessagesForSelectedContact() { // Nueva función para cargar mensajes
-      if (!this.selectedContactId) {
-        this.currentMessages = [];
-        return;
-      }
-      let contact = this.contacts.find(c => c.id === this.selectedContactId);
-      if (!contact) {
-        this.currentMessages = [];
-        return;
-      }
-
-      let senderId = parseInt(localStorage.getItem('user id'));
-      let recipientId = contact.userId;
-
-      try {
-        let messages = await messengerService.getMessagesByUsers(senderId, recipientId);
-
-        if (messages && messages.length > 0) {
-          this.currentMessages = messages.map((msg, index) => ({
-            id: msg.id || index + 1,
-            content: msg.content,
-            time: new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}),
-            isMine: msg.senderId === senderId,
-            isFile: !!msg.fileUrl,
-            fileName: msg.fileName || msg.content || 'archivo',
-            fileUrl: msg.fileUrl || '',
-          }));
-          console.log("Mensajes recibidos del backend:", messages);
-        } else {
-          this.currentMessages = [];
-        }
-      } catch (error) {
-        console.error("Error al cargar mensajes:", error);
-        this.currentMessages = [];
-      }
-
-      this.$nextTick(() => {
-        this.scrollToBottom();
+      this.currentMessages.push({
+        id: Date.now(),
+        content: text,
+        time: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        isMine: true,
       });
+
+      this.newMessage = "";
+      this.$nextTick(() => this.scrollToBottom());
     },
     scrollToBottom() {
-      const container = this.$refs.messageContainer;
+      const container = this.$refs.messaeContainer;
       if (container) {
         container.scrollTop = container.scrollHeight;
       }
     },
-    async loadContacts() {
-      const userType = localStorage.getItem('user type');
-      const contacts = await messengerService.getUsersFilteredByUserType(userType);
+    checkMobile() {
+      this.isMobileView = window.innerWidth <= 768;
+      if (this.isMobileView && this.selectedContactId) {
+        this.showContactList = false;
+      } else {
+        this.showContactList = true;
+      }
+    },
+    goBackToContacts() {
+      this.showContactList = true;
+      this.selectedContactId = null;
+    },
+  },
+  async mounted() {
+    await this.connectToSocket();
+    this.checkMobile();
+    window.addEventListener("resize", this.checkMobile);
 
-      this.contacts = contacts.map((c) => ({
-        ...c
-      }));
-
-      if (this.contacts.length > 0) {
-        this.selectedContactId = this.contacts[0].id;
-        await this.loadMessagesForSelectedContact(); // Cargar mensajes del primer contacto
+    const userId = localStorage.getItem("user id");
+    if (userId) {
+      try {
+        const response = await axios.get(
+            `http://localhost:8080/api/v1/chats/user/${userId}`
+        );
+        this.contacts = response.data;
+      } catch (error) {
+        console.error("Error fetching contacts:", error);
       }
     }
   },
-  async mounted() {
-    await this.loadContacts();
-    this.checkMobile(); // Verificar estado móvil al montar
-    window.addEventListener('resize', this.checkMobile); // Escuchar cambios de tamaño de ventana
-  },
   beforeDestroy() {
-    window.removeEventListener('resize', this.checkMobile); // Limpiar el listener al destruir
-  }
+    window.removeEventListener("resize", this.checkMobile);
+    messengerService.disconnect();
+  },
 };
 </script>
 
@@ -255,16 +140,16 @@ export default {
       <ul class="contact-list">
         <li
             v-for="contact in filteredContacts"
-            :key="contact.id"
-            :class="['contact-item', { active: contact.id === selectedContactId }]"
-            @click="selectContact(contact.id)"
+            :key="contact.projectId"
+            :class="['contact-item', { active: contact.projectId === selectedContactId }]"
+            @click="selectContact(contact.projectId)"
         >
           <div class="avatar-wrapper">
-            <img :src="contact.avatar" class="avatar" alt="Avatar"/>
+            <img :src="contact.ownerImgUrl" class="avatar" alt="Avatar"/>
             <span v-if="contact.online" class="online-indicator"></span>
           </div>
           <div class="contact-info">
-            <p class="contact-name">{{ contact.name }}</p>
+            <p class="contact-name">{{ contact.projectName }}</p>
             <span
                 v-if="contact.unreadCount > 0"
                 class="unread-badge"
@@ -283,9 +168,9 @@ export default {
                     d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
             </svg>
           </button>
-          <img :src="currentContact.avatar" class="header-avatar" alt="Avatar"/>
+          <img :src="currentContact.ownerImgUrl" class="header-avatar" alt="Avatar"/>
           <div class="header-info">
-            <p class="header-name">{{ currentContact.name }}</p>
+            <p class="header-name">{{ currentContact.projectName }}</p>
             <p class="header-status" v-if="currentContact.online">En línea</p>
           </div>
         </div>
@@ -349,14 +234,6 @@ export default {
       </div>
 
       <footer class="chat-input" v-if="currentContact">
-        <button class="btn-attach" @click="triggerFileInput">📎</button>
-        <input
-            type="file"
-            ref="fileInput"
-            style="display: none"
-            @change="handleFileSelection"
-        />
-
         <input
             type="text"
             v-model="newMessage"
