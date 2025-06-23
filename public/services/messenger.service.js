@@ -80,7 +80,7 @@ export default {
 
     async loadChatHistory(projectId) {
         try {
-            const response = await axios.get(`/api/v1/chat-messages/messages/${projectId}`);
+            const response = await axios.get(`http://localhost:8080/api/v1/chat-messages/messages/${projectId}`);
             return response.data.content || [];
         } catch (error) {
             console.error("Error loading chat history:", error);

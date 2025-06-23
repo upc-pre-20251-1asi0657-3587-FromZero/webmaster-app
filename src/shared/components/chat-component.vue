@@ -51,8 +51,28 @@ export default {
           (message) => this.onMessageReceived(message)
       );
 
+
+      console.log("Project Id", projectId)
       // Cargar historial de mensajes
-      this.currentMessages = await messengerService.loadChatHistory(projectId);
+      let data = await messengerService.loadChatHistory(projectId);
+
+      console.log(data, 'data');
+
+      this.currentMessages = data.map((message) => {
+        const isMine = message.senderId === this.userId;  // Comparar con el userId local
+        return {
+          id: message.timestamp || Date.now(),  // Usar timestamp como ID único
+          content: message.content,
+          time: new Date(message.timestamp).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          isMine: isMine,
+        };
+      });
+      console.log(this.currentMessages);
+
+      this.$nextTick(() => this.scrollToBottom());
 
       if (this.isMobileView) {
         this.showContactList = false;
@@ -96,7 +116,7 @@ export default {
       this.$nextTick(() => this.scrollToBottom());
     },
     scrollToBottom() {
-      const container = this.$refs.messaeContainer;
+      const container = this.$refs.messageContainer;
       if (container) {
         container.scrollTop = container.scrollHeight;
       }
@@ -444,12 +464,11 @@ export default {
 .chat-messages {
   flex: 1;
   padding: 15px;
-  overflow-y: auto;
+  overflow-y: scroll;
   background: #fafafa;
   display: flex;
   flex-direction: column;
   /* Para que los mensajes aparezcan desde abajo */
-  justify-content: flex-end;
   min-height: 0; /* Importante para flexbox */
 }
 
