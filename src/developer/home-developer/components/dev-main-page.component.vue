@@ -137,10 +137,12 @@ export default {
       const isSpecialtiesValid = validateSpecialties(categoryTexts.value[2]);
 
       // Si todos los campos son válidos
+      let email = localStorage.getItem("user email");
       if (isSummaryValid && isCountryValid && isPhoneValid && isSpecialtiesValid) {
         const updatedInfo = {
           firstName: props.developer.firstName,
           lastName: props.developer.lastName,
+          developerEmail: email,
           description: mainText.value,
           country: categoryTexts.value[0],
           phone: categoryTexts.value[1],
