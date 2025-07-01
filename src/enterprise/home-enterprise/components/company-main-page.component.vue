@@ -169,9 +169,11 @@ export default {
       const isSectorValid = validateSector(categoryTexts.value[4]);
 
       // Si todos los campos son válidos
+      let email = localStorage.getItem("user email");
       if (isSummaryValid && isCountryValid && isRUCValid && isPhoneValid && isWebsiteValid && isSectorValid) {
         const updatedInfo = {
           enterpriseName: props.company.enterprise_name,
+          enterpriseEmail: email,
           description: mainText.value,
           country: categoryTexts.value[0],
           ruc: categoryTexts.value[1],
