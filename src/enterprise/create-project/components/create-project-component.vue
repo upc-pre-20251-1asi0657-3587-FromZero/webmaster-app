@@ -213,7 +213,7 @@ export default {
       const payload = {
         name: this.titleText,
         description: this.descriptionText,
-        ownerId: parseInt(localStorage.getItem("user id"), 10),
+        ownerId: localStorage.getItem("user id"),
         languages: this.selectedLanguages,
         frameworks: this.selectedFrameworks,
         type: this.selectedType,

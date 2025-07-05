@@ -1,6 +1,7 @@
 <script>
 import { ProjectService } from "../../../../public/services/project.service.js";
 import { ProjectEntity } from "../../../shared/models/project.model.js";
+import {CandidatesService} from "../../../../public/services/candidates.service.js";
 
 export default {
   name: "apply-project",
@@ -9,7 +10,9 @@ export default {
       showButtons: false,
       showBlurEffect: false,
       projectService: new ProjectService(),
-      developerId: localStorage.getItem("user id"),
+      candidatesService: new CandidatesService(),
+      developerId: localStorage.getItem("developer id"),
+      projectId: localStorage.getItem("project id"),
     };
   },
   props: {
@@ -20,16 +23,23 @@ export default {
   },
   computed: {
     hasApplied() {
-      return this.project.candidates.some(
-          (candidate) => candidate.userId === Number(this.developerId)
-      );
-    },
+      return Array.isArray(this.project.candidates) &&
+          this.project.candidates.some(
+              (candidate) => candidate === this.developerId
+          );
+    }
+
   },
   methods: {
-    sendApplicant() {
-      let developer_Id = localStorage.getItem("user id");
-      let project_Id = localStorage.getItem("project id");
-      this.projectService.addApplicant(project_Id, Number(developer_Id));
+    async sendApplicant() {
+
+      try{
+        const response = await this.candidatesService.applyToAProject(this.projectId, this.developerId);
+      }catch(error){
+        console.log("error al enviar postulación: ", error);
+        console.log("detalle del error:", error?.response?.data);
+      }
+
     },
     showTemplate() {
       this.showBlurEffect = true;

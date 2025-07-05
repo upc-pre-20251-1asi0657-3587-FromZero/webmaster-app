@@ -15,7 +15,7 @@ export default {
     redirectToProfile() {
       //console.log(this.developer.user.user_id)
       //localStorage.setItem('developer id', this.developer.user.user_id)
-      this.$router.push(`/developer-profile/${this.developer.userId}`)
+      this.$router.push(`/developer-profile/${this.developer.developer_id}`)
     }
   }
 }
