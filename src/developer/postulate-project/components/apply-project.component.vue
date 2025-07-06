@@ -226,16 +226,16 @@ export default {
       </div>
     </div>
 
-    <!-- Application Section -->
     <div class="application-section">
       <div class="application-content">
         <div v-if="!hasApplied" class="apply-container">
-          <h3 class="apply-title">¿Listo para formar parte de este proyecto?</h3>
+          <h3 class="apply-title">Ready to be part of this project?</h3>
           <p class="apply-subtitle">
-            Postúlate ahora y comienza a trabajar en este increíble proyecto
+            Apply now and start working on this amazing project
           </p>
           <pv-button @click="showTemplate()" :label="$t('apply-project-part8')" class="apply-btn" size="large">
             <i class="pi pi-send mr-2"></i>
+            <p>Send</p>
           </pv-button>
         </div>
 
@@ -243,9 +243,9 @@ export default {
           <div class="success-icon">
             <i class="pi pi-check-circle"></i>
           </div>
-          <h3 class="success-title">¡Ya te has postulado!</h3>
+          <h3 class="success-title">You have already applied!</h3>
           <p class="success-message">
-            Tu postulación está siendo revisada. Te contactaremos pronto.
+            Your application is being reviewed. We will contact you soon.
           </p>
         </div>
       </div>
@@ -588,6 +588,13 @@ export default {
   margin-bottom: 0.5rem;
 }
 
+.apply-container{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+}
+
 .apply-subtitle {
   font-size: 1.1rem;
   opacity: 0.9;
@@ -598,11 +605,15 @@ export default {
   background: white;
   color: #2d3748;
   border: none;
-  padding: 1rem 2rem;
-  font-size: 1.1rem;
+  width: 150px;
+  font-size: 1rem;
+  padding: 0;
   font-weight: 600;
   border-radius: 15px;
   transition: all 0.3s ease;
+  display: flex;
+  justify-content: center;
+
 }
 
 .apply-btn:hover {

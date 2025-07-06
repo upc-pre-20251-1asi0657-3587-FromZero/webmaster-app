@@ -6,18 +6,18 @@
 
     <div v-else-if="hasError" class="status-card">
       <div class="status-icon">⚠️</div>
-      <h3 class="status-title">Error al cargar los datos del desarrollador</h3>
+      <h3 class="status-title">Error loading developer data</h3>
       <p class="status-text">
-        Hubo un problema al obtener la información. Por favor, intenta nuevamente.
+        There was a problem getting the information. Please try again.
       </p>
       <button @click="reloadPage" class="status-button">
-        Volver a intentar
+        Try again
       </button>
     </div>
 
     <div v-else class="status-card">
       <div class="loading-spinner" />
-      <p class="status-text">Cargando datos del desarrollador…</p>
+      <p class="status-text">Loading developer data…</p>
     </div>
   </div>
 </template>

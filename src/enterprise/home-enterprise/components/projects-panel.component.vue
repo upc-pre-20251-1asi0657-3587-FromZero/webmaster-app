@@ -230,13 +230,11 @@ export default {
 
 
 <style scoped>
-
 .project.applicant {
   height: 100%;
   margin:1rem;
   padding:1.5rem;
 }
-
 
 .applicants-title {
   height: 100%;
@@ -279,7 +277,6 @@ export default {
   text-decoration: underline;
 }
 
-
 .choose-dev:hover {
   background: #B864F3;
 }
@@ -294,7 +291,6 @@ export default {
   flex-direction: column;
   justify-content: flex-start;
   align-items: flex-start;
-
 }
 
 .applicants-title{
@@ -308,7 +304,6 @@ export default {
     font-size: 1.2rem;
     font-weight: bold;
   }
-
 }
 
 .applicants-list {
@@ -316,7 +311,6 @@ export default {
   display:flex;
   flex-direction: row;
 }
-
 
 hr {
   opacity: 0.3;
@@ -333,20 +327,26 @@ hr {
   min-width: 20rem;
   box-shadow: 0 20px 40px rgb(57, 57, 57);
   margin-top: 4rem;
-  max-height: 600px;
+  max-height: 800px;
   min-height: 620px;
-  padding:1rem;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: #888 #f1f1f1;
+  overflow: hidden;
 }
 
-.projects-container::-webkit-scrollbar {
-  width: 8px;
+:deep(.p-card-title) {
+  display: flex;
+  align-items: center;
+  margin: 20px 20px 0 20px;
+  justify-content: center;
 }
 
+:deep(.p-card-content) {
+  margin: 0 20px;
+  flex-grow: 1;
+  overflow: hidden;
+  max-height: 90%;
+}
 
 .subtitle {
   color: #64748b;
@@ -357,27 +357,29 @@ span {
 }
 
 .project-list {
-  display: block;
-  justify-content: center;
-  overflow: auto;
-  height: auto;
-  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-height: 450px;
+  overflow-y: auto;
+  padding: 20px;
 }
 
 .project {
-  background-color: #D9D9D9;
-  border-radius: 15px;
+  background-color: #F0F0F0;
   box-shadow: 0 2px 4px rgb(197, 197, 197);
+  border-radius: 15px;
   display: flex;
   flex-direction: column;
   text-align: center;
-  margin: 10px;
   height: 150px;
   transition: transform 0.2s ease;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding:1rem;
 }
 
 .project:hover {
-  cursor: pointer;
   transform: scale(1.04, 1.04);
 }
 
@@ -393,31 +395,31 @@ h4 {
   display:flex;
   justify-content: center;
   align-items: center;
-  border:2px solid #5273f6;
+  border:2px solid #a933ff;
   cursor:pointer;
   border-radius: 5px;
-  margin:10px;
+  margin:20px;
   font-weight: bold;
-  color: #3554BC;
-  background-color: #e1eafb;
-  height: 40px;
+  color: #a933ff;
+  background-color: #e5d6f3;
+  height: 30px;
 
   p{
     padding:0 20px;
   }
-
 }
 
 .candidates-container:hover{
-  background-color: #d1e2ff;
+  background-color: #dfc2f4;
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(53, 84, 188, 0.3);
 }
 
 :deep(.p-progressbar) {
-  width: 70%;
+  width: 80%;
   align-self: center;
-  height: 30%;
+  margin:auto;
+  height: 10px;
 }
 
 :deep(.p-progressbar .p-progressbar-value) {
@@ -438,7 +440,6 @@ h4 {
   display: block !important;
 }
 
-
 :root(.p-dialog-content) {
   height: 100vh;
 }
@@ -447,8 +448,6 @@ h4 {
   background: #3554BC;
   border: none;
 }
-
-
 
 .projects-header {
   display: flex;
@@ -464,7 +463,7 @@ h4 {
 }
 
 .new-project-button {
-  background-color: #6B46C1; /* morado */
+  background-color: #6B46C1;
   color: white;
   margin-left: 1px;
 }
@@ -475,21 +474,21 @@ h4 {
   margin: 0.5rem 0 1rem;
 }
 
-.project-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  max-height: 68vh;
-  overflow-y: auto;
+.project-list::-webkit-scrollbar {
+  width: 6px;
 }
 
-.project {
-  background-color: #F0F0F0;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 1rem;
+.project-list::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
 }
 
+.project-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
 
-
+.project-list::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
 </style>
