@@ -388,7 +388,7 @@ export default {
         />
         <div class="edit-overlay" :class="{ visible: isHoveringImage }">
           <i class="pi pi-camera edit-icon"></i>
-          <span class="edit-text">Editar foto</span>
+          <span class="edit-text">Edit photo</span>
         </div>
       </div>
       <div aria-label="Company Name">
@@ -541,7 +541,7 @@ export default {
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
+  right: 8px;
   bottom: 0;
   background: rgba(0, 0, 0, 0.6);
   border-radius: 50%;

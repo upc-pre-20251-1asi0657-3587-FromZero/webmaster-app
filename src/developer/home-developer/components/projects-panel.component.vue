@@ -29,7 +29,7 @@ export default {
 <template>
   <pv-card class="projects-panel-card">
     <template #title>
-      <h2 class="section-title">Mis Proyectos</h2>
+      <h2 class="section-title">My projects</h2>
     </template>
 
     <template #content>
@@ -50,8 +50,8 @@ export default {
           <template #content>
             <p class="project-description">{{ project.descriptionProject }}</p>
             <div class="project-info">
-              <span><strong>Presupuesto:</strong> ${{ project.budget }}</span>
-              <span><strong>Estado:</strong> {{ translateState(project.stateProject) }}</span>
+              <span><strong>Budget:</strong> ${{ project.budget }}</span>
+              <span><strong>State:</strong> {{ translateState(project.stateProject) }}</span>
             </div>
             <div class="progress-section">
               <pv-progressbar :value="Math.trunc(project.projectProgressBar)" showValue />

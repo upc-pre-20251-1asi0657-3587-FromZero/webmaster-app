@@ -165,7 +165,7 @@ export default {
   <div class="chat-container">
     <aside class="sidebar" :class="{ 'mobile-hidden': !showContactList }">
       <div class="search-bar">
-        <input type="text" v-model="searchQuery" placeholder="Busca conversaciones..."/>
+        <input type="text" v-model="searchQuery" placeholder="Search conversations..."/>
       </div>
       <ul class="contact-list">
         <li
@@ -201,7 +201,7 @@ export default {
           <img :src="currentContact.ownerImgUrl" class="header-avatar" alt="Avatar"/>
           <div class="header-info">
             <p class="header-name">{{ currentContact.projectName }}</p>
-            <p class="header-status" v-if="currentContact.online">En línea</p>
+            <p class="header-status" v-if="currentContact.online">Online</p>
           </div>
         </div>
         <div class="header-actions">
@@ -210,7 +210,7 @@ export default {
       </header>
       <header class="chat-header" v-else>
         <div class="header-left">
-          <p class="header-name">Selecciona un contacto para chatear</p>
+          <p class="header-name">Select a contact to chat</p>
         </div>
       </header>
 
@@ -230,10 +230,10 @@ export default {
 
 
         <div v-if="currentMessages.length === 0 && currentContact" class="no-messages">
-          ¡Aún no hay mensajes en esta conversación! Sé el primero en decir hola.
+          No messages in this conversation yet! Be the first to say hello.
         </div>
         <div v-if="!currentContact" class="no-messages-selected">
-          Selecciona un contacto para iniciar una conversación.
+          Select a contact to start a conversation.
         </div>
       </div>
 
@@ -241,7 +241,7 @@ export default {
         <input
             type="text"
             v-model="newMessage"
-            placeholder="Escribe un mensaje..."
+            placeholder="Type a message..."
             @keyup.enter="prepareAndSendMessage"
         />
         <button class="btn-send" @click="prepareAndSendMessage">
@@ -249,7 +249,7 @@ export default {
         </button>
       </footer>
       <footer class="chat-input-disabled" v-else>
-        <input type="text" placeholder="Selecciona un contacto para enviar mensajes..." disabled/>
+        <input type="text" placeholder="Select a contact to send messages..." disabled/>
       </footer>
     </section>
   </div>

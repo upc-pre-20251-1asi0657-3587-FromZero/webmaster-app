@@ -125,6 +125,11 @@ export default {
   position: relative;
 }
 
+.close-button:hover {
+  color: #495057;
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
 .close-button {
   position: absolute;
   padding: 20px;
