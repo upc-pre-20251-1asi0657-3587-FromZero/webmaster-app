@@ -11,7 +11,7 @@ export default {
     return {
       Mail: '',
       Password: '',
-      captchaVerified: true,
+      captchaVerified: false,
       errors: {
         Mail: '',
         Password: ''
@@ -118,7 +118,7 @@ export default {
             </div>
 
             <!-- Captcha -->
-<!--            <div id="hcaptcha-container" class="h-captcha"></div>-->
+            <div id="hcaptcha-container" class="h-captcha"></div>
 
             <p v-if="errorMessage" class="text-red-500 text-sm">{{ errorMessage }}</p>
             <pv-button
